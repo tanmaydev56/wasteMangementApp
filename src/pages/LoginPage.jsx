@@ -11,8 +11,19 @@ const LoginPage = () => {
         <span className="text-white text-xl font-bold">GreenFuture</span>
       </div>
       
-      <SignupFormDemo /> {/* Render the signup form */}
-      
+      <SignupFormDemo />
+       {/* Render the signup form */}
+       <a href="/dashboard">
+        <button className="absolute top-[30px] right-[99px] lg:flex items-center hidden space-x-2
+        text-white font-bold
+        bg-[#1a211e]
+        hover:bg-[#1a211e]
+        rounded-lg
+        p-2
+        "
+        
+        >TO Dashboard</button>
+        </a>
       <img src={photo} alt="Decorative" className="hidden md:block h-full object-cover w-[33%]" />
     </div>
   );
