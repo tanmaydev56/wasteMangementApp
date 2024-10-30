@@ -33,13 +33,14 @@ export function SignupFormDemo() {
     try {
       await account.createOAuth2Session(
         'google',
-        '/dashboard', 
-        '/login' 
+        process.env.NEXT_PUBLIC_SUCCESS_REDIRECT_URL, // Updated to use env variable
+        process.env.NEXT_PUBLIC_FAILURE_REDIRECT_URL  // Updated to use env variable
       );
     } catch (error) {
-      setError(error.message); 
+      setError(error.message);
     }
   };
+  
 
   return (
     <div className="flex flex-col items-center max-w-2xl lg:ml-[5%] space-y-4 p-6 bg-[#1a211e] w-full">
