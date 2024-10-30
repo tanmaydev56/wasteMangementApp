@@ -33,8 +33,8 @@ export function SignupFormDemo() {
     try {
       await account.createOAuth2Session(
         'google',
-        'http://localhost:5174/dashboard', 
-        'http://localhost:5174/fail' 
+        '/dashboard', 
+        '/login' 
       );
     } catch (error) {
       setError(error.message); 
