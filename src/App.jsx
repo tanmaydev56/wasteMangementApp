@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import CollectWaste from './components/CollectWaste';
 import ReportWaste from './pages/ReportWaste';
 import News from './pages/News';
+import Rewards from './pages/Rewards';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/collectwaste" element={<CollectWaste />} />
         <Route path="/report-waste" element={<ReportWaste />} />
         <Route path="/News" element={<News />} />
+        <Route path="/rewards" element={<Rewards />} />
       </Routes>
     </Router>
   );

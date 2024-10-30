@@ -1,10 +1,16 @@
-import React, { useState, useCallback } from 'react';
-import { FaHome, FaMapMarkerAlt, FaTrashAlt, FaGift, FaMedal, FaCog, FaNewspaper } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaHome, FaMapMarkerAlt, FaTrashAlt, FaGift, FaCog, FaNewspaper } from 'react-icons/fa';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const SideBar = ({ isVisible }) => {
-  const [activeItem, setActiveItem] = useState('/dashboard'); // Default active item
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeItem, setActiveItem] = useState(location.pathname); // Initialize with current path
+
+  // Update activeItem based on the current path
+  useEffect(() => {
+    setActiveItem(location.pathname);
+  }, [location.pathname]);
 
   // Debounce function
   const debounce = (func, delay) => {
@@ -23,7 +29,7 @@ const SideBar = ({ isVisible }) => {
     debounce((path) => {
       setActiveItem(path); // Update active item
       navigate(path); // Navigate to the selected path
-    }, 300), // Adjust the delay as needed
+    }, 100), // Adjust the delay as needed
     []
   );
 
@@ -72,9 +78,9 @@ const SideBar = ({ isVisible }) => {
         </div>
         <div
           className={`flex items-center p-2 rounded-md cursor-pointer ${
-            activeItem === '/News' ? 'bg-green-100 text-green-700' : ''
+            activeItem === '/news' ? 'bg-green-100 text-green-700' : ''
           }`}
-          onClick={() => handleNavigation('/News')}
+          onClick={() => handleNavigation('/news')}
         >
           <FaNewspaper className="mr-2" />
           <span>News</span>

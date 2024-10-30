@@ -2,28 +2,27 @@ import React, { useState } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-import { Button } from "../components/ui/button";
-import SideBar from './SideBar';
+import { Button} from "../components/ui/button"
+import SideBar from '../components/SideBar';
 import { Leaf } from 'lucide-react';
 
-const CollectWaste = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
-  const navigate = useNavigate();
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    navigate('/login');
-  };
-
+const Rewards = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [showSidebar, setShowSidebar] = useState(false);
+    const navigate = useNavigate();
+  
+    const toggleDropdown = () => {
+      setIsOpen(!isOpen);
+    };
+  
+    const toggleSidebar = () => {
+      setShowSidebar(!showSidebar);
+    };
+  
+    const handleLogout = () => {
+      localStorage.removeItem('userToken');
+      navigate('/login');
+    };
   return (
     <div className="h-screen w-full flex">
       {/* Sidebar */}
@@ -78,14 +77,15 @@ const CollectWaste = () => {
             </div>
           </div>
         </div>
+        <div className='flex justify-center w-full items-center mt-[100px]'>
+            <h1 className='text-3xl text-black'>REWARDS</h1>
+        </div>
 
         
-        <div className='flex justify-center w-full items-center mt-[100px]'>
-            <h1 className='text-3xl text-black'>COLLECT WASTE</h1>
-        </div>
+       
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CollectWaste;
+export default Rewards

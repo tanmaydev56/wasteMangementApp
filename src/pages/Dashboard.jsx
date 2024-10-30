@@ -1,82 +1,128 @@
 import SideBar from '../components/SideBar';
 import { Leaf } from 'lucide-react';
-import { useState } from 'react';
-import { FaLeaf, FaSearch, FaBell, FaUser,FaArrowRight } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-import {Button} from "../components/ui/button"
-
+import { Button } from "../components/ui/button";
+import { Coins } from 'lucide-react';
+import { Recycle,MapPin } from 'lucide-react';
+import { FaUsers } from 'react-icons/fa';
 
 const Dashboard = () => {
+  const [impactData, setImpactData] = useState({
+    wasteCollected: 0,
+    reportsSubmitted: 0,
+    tokensEarned: 0,
+    co2Offset: 0,
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const navigate = useNavigate();
-  
+
+  // Fetch impact data on component mount
+  useEffect(() => {
+    async function fetchImpactData() {
+      try {
+        const reports = await getRecentReports(100);  // Fetch last 100 reports
+        const rewards = await getAllRewards();
+        const tasks = await getWasteCollectionTasks(100);  // Fetch last 100 tasks
+
+        const wasteCollected = tasks.reduce((total, task) => {
+          const match = task.amount.match(/(\d+(\.\d+)?)/);
+          const amount = match ? parseFloat(match[0]) : 0;
+          return total + amount;
+        }, 0);
+
+        const reportsSubmitted = reports.length;
+        const tokensEarned = rewards.reduce((total, reward) => total + (reward.points || 0), 0);
+        const co2Offset = wasteCollected * 0.5;  // Assuming 0.5 kg CO2 offset per kg of waste
+
+        setImpactData({
+          wasteCollected: Math.round(wasteCollected * 10) / 10, // Round to 1 decimal place
+          reportsSubmitted,
+          tokensEarned,
+          co2Offset: Math.round(co2Offset * 10) / 10, // Round to 1 decimal place
+        });
+      } catch (error) {
+        console.error("Error fetching impact data:", error);
+        // Set default values in case of error
+        setImpactData({
+          wasteCollected: 0,
+          reportsSubmitted: 0,
+          tokensEarned: 0,
+          co2Offset: 0,
+        });
+      }
+    }
+
+    fetchImpactData();
+  }, []);
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-  
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userToken'); 
-    navigate('/login'); 
+    localStorage.removeItem('userToken');
+    navigate('/login');
   };
 
   return (
     <div className="h-screen w-full flex flex-col">
       {/* Navbar */}
       <div className="flex items-center justify-between h-20 px-4 bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
-          {/* Left Section */}
-          <div className="flex items-center space-x-4">
-            <button className="text-xl" onClick={toggleSidebar}>
-              <MdOutlineMenu />
-            </button>
-            <div className="flex items-center text-lg font-semibold">
-              <FaLeaf className="text-green-500 mr-1" />
-              <span>GreenFuture</span>
-            </div>
-          </div>
-
-          {/* Search Bar */}
-          <div className="lg:flex hidden items-center w-1/3 bg-gray-100 rounded-full px-4 py-2">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="flex-grow bg-transparent outline-none text-gray-600"
-            />
-            <FaSearch className="text-gray-400" />
-          </div>
-
-          {/* Right Section */}
-          <div className="flex items-center space-x-4">
-            <FaBell className="text-gray-500" />
-            <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
-              <FaLeaf className="text-green-500" />
-              <span className="text-sm font-semibold text-gray-800">0.00</span>
-            </div>
-            <div className="relative inline-block">
-              <button onClick={toggleDropdown} className="text-gray-500 text-2xl">
-                <FaUser />
-              </button>
-              {isOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
-                  <ul>
-                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
-                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
-                    <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
-                  </ul>
-                </div>
-              )}
-            </div>
+        {/* Left Section */}
+        <div className="flex items-center space-x-4">
+          <button className="text-xl" onClick={toggleSidebar}>
+            <MdOutlineMenu />
+          </button>
+          <div className="flex items-center text-lg font-semibold">
+            <FaLeaf className="text-green-500 mr-1" />
+            <span>GreenFuture</span>
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="lg:flex hidden items-center w-1/3 bg-gray-100 rounded-full px-4 py-2">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="flex-grow bg-transparent outline-none text-gray-600"
+          />
+          <FaSearch className="text-gray-400" />
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center space-x-4">
+          <FaBell className="text-gray-500" />
+          <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
+            <FaLeaf className="text-green-500" />
+            <span className="text-sm font-semibold text-gray-800">0.00</span>
+          </div>
+          <div className="relative inline-block">
+            <button onClick={toggleDropdown} className="text-gray-500 text-2xl">
+              <FaUser />
+            </button>
+            {isOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
+                <ul>
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
+                  <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="flex flex-grow lg:mt-40 mt-20">
+      <div className="flex flex-grow flex-col lg:mt-40 mt-20">
         {/* Sidebar */}
         <SideBar className="z-100" isVisible={showSidebar} />
 
@@ -92,18 +138,84 @@ const Dashboard = () => {
           <h1 className="lg:text-6xl text-4xl font-bold mb-6 text-gray-800 tracking-tight">
             GreenFuture <span className="text-green-600">Waste Management</span>
           </h1>
-          <p className="lg:text-2xl text-xl text-gray-600 w-full mx-auto leading-start flex justify-center
-          items-center   mb-8">
+          <p className="lg:text-2xl text-xl text-gray-600 w-full mx-auto leading-start flex justify-center items-center mb-8">
             Join our community in making waste management more efficient and rewarding!
           </p>
-          <Button onClick={() => navigate('/collectwaste')} className="  lg:ml-0 ml-[-50px] bg-green-600 hover:bg-green-700 text-white text-lg py-6 px-10 rounded-full font-medium transition-all duration-300 ease-in-out transform hover:scale-105">
+          <Button onClick={() => navigate('/collectwaste')} className="lg:ml-0 ml-[-50px] bg-green-600 hover:bg-green-700 text-white text-lg py-6 px-10 rounded-full font-medium transition-all duration-300 ease-in-out transform hover:scale-105">
             Get Started
             <FaArrowRight className="ml-2 h-5 w-5" />
           </Button>
+        </div>
+        <section className="grid md:grid-cols-3 gap-10 mb-20">
+  <FeatureCard
+    icon={Leaf}
+    title="Eco-Friendly"
+    description="Contribute to a cleaner environment by reporting and collecting waste."
+  />
+  <FeatureCard
+    icon={Coins}
+    title="Earn Rewards"
+    description="Get tokens for your contributions to waste management efforts."
+  />
+  <FeatureCard
+    icon={FaUsers} // Use the imported Users icon
+    title="Community-Driven"
+    description="Be part of a growing community committed to sustainable practices."
+  />
+</section>
+        <section className="bg-white p-10 rounded-3xl shadow-lg mb-20">
+          <h2 className="text-4xl font-bold mb-12 text-center text-gray-800">Our Impact</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            <ImpactCard title="Waste Collected" value={`${impactData.wasteCollected} kg`} icon={Recycle} />
+            <ImpactCard title="Reports Submitted" value={impactData.reportsSubmitted.toString()} icon={MapPin} />
+            <ImpactCard title="Tokens Earned" value={impactData.tokensEarned.toString()} icon={Coins} />
+            <ImpactCard title="CO2 Offset" value={`${impactData.co2Offset} kg`} icon={Leaf} />
+          </div>
+        </section>
+        <div className="flex w-full justify-around">
+          <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg mt-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">Recycling Guidelines</h2>
+            <h3 className="text-2xl font-semibold text-gray-800 mt-4 mb-2">What Can Be Recycled?</h3>
+            <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">
+              <li>Plastic bottles (rinsed)</li>
+              <li>Glass jars (clean)</li>
+              <li>Cardboard (flattened)</li>
+              <li>Aluminum cans (rinsed)</li>
+            </ul>
+            <h3 className="text-2xl font-semibold text-gray-800 mt-4 mb-2">What Cannot Be Recycled?</h3>
+            <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">
+              <li>Pizza boxes</li>
+              <li>Plastic bags</li>
+              <li>Polystyrene containers</li>
+              <li>Waxed cartons</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+function ImpactCard({ title, value, icon: Icon }) {
+  const formattedValue = typeof value === 'number' ? value.toLocaleString('en-US', { maximumFractionDigits: 1 }) : value;
+  
+  return (
+    <div className="p-6 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-300 ease-in-out hover:shadow-md">
+      <Icon className="h-10 w-10 text-green-500 mb-4" />
+      <p className="text-3xl font-bold mb-2 text-gray-800">{formattedValue}</p>
+      <p className="text-sm text-gray-600">{title}</p>
+    </div>
+  )
+}
 
+function FeatureCard({ icon: Icon, title, description }) {
+  return (
+    <div className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex flex-col items-center text-center">
+      <div className="bg-green-100 p-4 rounded-full mb-6">
+        <Icon className="h-8 w-8 text-green-600" />
+      </div>
+      <h3 className="text-xl font-semibold mb-4 text-gray-800">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">{description}</p>
+    </div>
+  )
+}
 export default Dashboard;
