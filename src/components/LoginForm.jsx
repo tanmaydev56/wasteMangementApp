@@ -1,6 +1,5 @@
 "use client";
-import  { useState } from "react"; // Import useState to manage form state
-
+import { useState } from "react"; // Import useState to manage form state
 import { Input } from "./ui/input";
 import { cn } from "../../lib/uitls";
 import { account } from '../../appwrite'; // Import your Appwrite client
@@ -18,6 +17,7 @@ export function SignupFormDemo() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); 
+    console.log("Submitting:", { name, email, password }); // Debugging line
     try {
       // Create a new user with the provided details
       const user = await account.create('unique()', email, password, name);
@@ -25,7 +25,7 @@ export function SignupFormDemo() {
      
       window.location.href = '/dashboard'; 
     } catch (error) {
-      setError(error.message); 
+      setError(error.response?.message || error.message); // Improved error handling
     }
   };
 
@@ -33,21 +33,17 @@ export function SignupFormDemo() {
     try {
       await account.createOAuth2Session(
         'google',
-        import.meta.env.VITE_PUBLIC_SUCCESS_REDIRECT_URL, // Use import.meta.env for Vite-based apps
+        import.meta.env.VITE_PUBLIC_SUCCESS_REDIRECT_URL,
         import.meta.env.VITE_PUBLIC_FAILURE_REDIRECT_URL
       );
     } catch (error) {
-      setError(error.message);
+      setError(error.response?.message || error.message); // Improved error handling
     }
   };
-  
-  
 
   return (
     <div className="flex flex-col items-center max-w-2xl lg:ml-[5%] space-y-4 p-6 bg-[#1a211e] w-full">
-      <h2 className="font-bold text-2xl text-green-700">
-        Welcome to GreenFuture
-      </h2>
+      <h2 className="font-bold text-2xl text-green-700">Welcome to GreenFuture</h2>
       <p className="text-[#fff] text-sm max-w-sm mt-2 text-center">
         Together for a Greener Tomorrow!
       </p>
@@ -55,9 +51,7 @@ export function SignupFormDemo() {
       {error && <p className="text-red-500">{error}</p>} 
 
       <form className="w-full space-y-4" onSubmit={handleSubmit}>
-        <LabelInputContainer 
-          className="space-y-2"
-          >
+        <LabelInputContainer className="space-y-2">
           <label htmlFor="firstname" className="text-[#fff]">Name</label>
           <Input 
             id="firstname" 
@@ -69,8 +63,7 @@ export function SignupFormDemo() {
           />
         </LabelInputContainer>
 
-        <LabelInputContainer 
-          className="space-y-2">
+        <LabelInputContainer className="space-y-2">
           <label htmlFor="email" className="text-[#fff]">Email Address</label>
           <Input 
             id="email" 
@@ -82,8 +75,7 @@ export function SignupFormDemo() {
           />
         </LabelInputContainer>
 
-        <LabelInputContainer 
-          className="space-y-2">
+        <LabelInputContainer className="space-y-2">
           <label htmlFor="password" className="text-[#fff]">Password</label>
           <Input 
             id="password" 
@@ -114,7 +106,6 @@ export function SignupFormDemo() {
             <span className="text-gray-700 text-sm">Google</span>
           </button>
 
-          
           {[ 
             { icon: <IconBrandGithub />, label: "GitHub" },
             { icon: <IconBrandFacebook />, label: "Facebook" },
