@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react"; // Import useState to manage form state
-import { Label } from "./ui/label";
+import  { useState } from "react"; // Import useState to manage form state
+
 import { Input } from "./ui/input";
 import { cn } from "../../lib/uitls";
 import { account } from '../../appwrite'; // Import your Appwrite client
@@ -33,8 +33,8 @@ export function SignupFormDemo() {
     try {
       await account.createOAuth2Session(
         'google',
-        import.meta.env.NEXT_PUBLIC_SUCCESS_REDIRECT_URL, // Use import.meta.env for Vite-based apps
-        import.meta.env.NEXT_PUBLIC_FAILURE_REDIRECT_URL
+        import.meta.env.VITE_PUBLIC_SUCCESS_REDIRECT_URL, // Use import.meta.env for Vite-based apps
+        import.meta.env.VITE_PUBLIC_FAILURE_REDIRECT_URL
       );
     } catch (error) {
       setError(error.message);
