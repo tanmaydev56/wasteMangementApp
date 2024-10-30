@@ -33,13 +33,14 @@ export function SignupFormDemo() {
     try {
       await account.createOAuth2Session(
         'google',
-        process.env.NEXT_PUBLIC_SUCCESS_REDIRECT_URL, // Updated to use env variable
-        process.env.NEXT_PUBLIC_FAILURE_REDIRECT_URL  // Updated to use env variable
+        import.meta.env.NEXT_PUBLIC_SUCCESS_REDIRECT_URL, // Use import.meta.env for Vite-based apps
+        import.meta.env.NEXT_PUBLIC_FAILURE_REDIRECT_URL
       );
     } catch (error) {
       setError(error.message);
     }
   };
+  
   
 
   return (
@@ -54,7 +55,9 @@ export function SignupFormDemo() {
       {error && <p className="text-red-500">{error}</p>} 
 
       <form className="w-full space-y-4" onSubmit={handleSubmit}>
-        <LabelInputContainer>
+        <LabelInputContainer 
+          className="space-y-2"
+          >
           <label htmlFor="firstname" className="text-[#fff]">Name</label>
           <Input 
             id="firstname" 
@@ -66,7 +69,8 @@ export function SignupFormDemo() {
           />
         </LabelInputContainer>
 
-        <LabelInputContainer>
+        <LabelInputContainer 
+          className="space-y-2">
           <label htmlFor="email" className="text-[#fff]">Email Address</label>
           <Input 
             id="email" 
@@ -78,7 +82,8 @@ export function SignupFormDemo() {
           />
         </LabelInputContainer>
 
-        <LabelInputContainer>
+        <LabelInputContainer 
+          className="space-y-2">
           <label htmlFor="password" className="text-[#fff]">Password</label>
           <Input 
             id="password" 
