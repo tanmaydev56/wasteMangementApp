@@ -14,7 +14,7 @@ const LoginPage = () => {
       <SignupFormDemo />
        {/* Render the signup form */}
        <a href="/dashboard">
-        <button className="absolute top-[30px] right-[99px] lg:flex items-center hidden space-x-2
+        <button className="absolute lg:top-[30px] top-[90%] right-[99px] lg:flex items-center  space-x-2
         text-white font-bold
         bg-[#1a211e]
         hover:bg-[#1a211e]
