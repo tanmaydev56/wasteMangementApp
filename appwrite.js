@@ -3,14 +3,16 @@ import { Client, Account, Databases } from "appwrite";
 // Initialize the Appwrite client
 const client = new Client()
   .setEndpoint('https://cloud.appwrite.io/v1')  // Appwrite Cloud endpoint
-  .setProject('672122c90036206ecef2');          // Your Appwrite Project ID
+  .setProject(
+    
+    import.meta.env.VITE_PUBLIC_PROJECT_ID);          // Your Appwrite Project ID
 
 export const account = new Account(client);     // Account instance for auth
 const databases = new Databases(client);        // Database instance for data access
 
 // Replace 'databaseId' and 'collectionId' with your actual Appwrite database and collection IDs
-const databaseId = '672125ed00244b419c48';
-const collectionId = '672125f7002aac463c2c';
+const databaseId = import.meta.env.VTIE_PUBLIC_DATABASE_ID;
+const collectionId = import.meta.env.VITE_PUBLIC_COLLECTION_ID;
 
 // Function to fetch documents from the collection
 async function getDocuments() {
