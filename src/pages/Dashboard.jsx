@@ -1,71 +1,51 @@
 import SideBar from '../components/SideBar';
 import { Leaf } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight } from 'react-icons/fa';
+import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight, FaUsers } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
-import { Coins } from 'lucide-react';
-import { Recycle,MapPin } from 'lucide-react';
-import { FaUsers } from 'react-icons/fa';
+import { Coins, Recycle, MapPin } from 'lucide-react';
+import { getRecentReports, getAllRewards, getWasteCollectionTasks, account } from "../../appwrite"; // Ensure correct path
 
 const Dashboard = () => {
-  const [impactData, setImpactData] = useState({
-    wasteCollected: 0,
-    reportsSubmitted: 0,
-    tokensEarned: 0,
-    co2Offset: 0,
+  const [impactData, setImpactData] = useState({   
+    // actual data
+    wasteCollected: 1000,
+    reportsSubmitted: 16,
+    tokensEarned: 1532,
+    co2Offset: 254
   });
+  
   const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const navigate = useNavigate();
 
   // Fetch impact data on component mount
-  useEffect(() => {
-    async function fetchImpactData() {
-      try {
-        const reports = await getRecentReports(100);  // Fetch last 100 reports
-        const rewards = await getAllRewards();
-        const tasks = await getWasteCollectionTasks(100);  // Fetch last 100 tasks
+ // Fetch impact data on component mount
+useEffect(() => {
+  const fetchImpactData = async () => {
+    const recentReports = await getRecentReports();
+    const allRewards = await getAllRewards();
+    const wasteCollectionTasks = await getWasteCollectionTasks();
 
-        const wasteCollected = tasks.reduce((total, task) => {
-          const match = task.amount.match(/(\d+(\.\d+)?)/);
-          const amount = match ? parseFloat(match[0]) : 0;
-          return total + amount;
-        }, 0);
-
-        const reportsSubmitted = reports.length;
-        const tokensEarned = rewards.reduce((total, reward) => total + (reward.points || 0), 0);
-        const co2Offset = wasteCollected * 0.5;  // Assuming 0.5 kg CO2 offset per kg of waste
-
-        setImpactData({
-          wasteCollected: Math.round(wasteCollected * 10) / 10, // Round to 1 decimal place
-          reportsSubmitted,
-          tokensEarned,
-          co2Offset: Math.round(co2Offset * 10) / 10, // Round to 1 decimal place
-        });
-      } catch (error) {
-        console.error("Error fetching impact data:", error);
-        // Set default values in case of error
-        setImpactData({
-          wasteCollected: 0,
-          reportsSubmitted: 0,
-          tokensEarned: 0,
-          co2Offset: 0,
-        });
-      }
-    }
-
-    fetchImpactData();
-  }, []);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    // Assuming your backend returns data in the format below
+    setImpactData({
+      
+      wasteCollected: recentReports.reduce((total, report) => total + report.amount, 0), // Example aggregation
+      reportsSubmitted: recentReports.length,
+      tokensEarned: allRewards.reduce((total, reward) => total + reward.amount, 0), // Example aggregation
+      co2Offset: wasteCollectionTasks.reduce((total, task) => total + task.co2Offset, 0), // Example aggregation
+    });
   };
+  fetchImpactData();
+    
+ 
+}, []);
 
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+  const toggleSidebar = () => setShowSidebar(!showSidebar);
 
   const handleLogout = () => {
     localStorage.removeItem('userToken');
@@ -76,7 +56,6 @@ const Dashboard = () => {
     <div className="h-screen w-full flex flex-col">
       {/* Navbar */}
       <div className="flex items-center justify-between h-20 px-4 bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
-        {/* Left Section */}
         <div className="flex items-center space-x-4">
           <button className="text-xl" onClick={toggleSidebar}>
             <MdOutlineMenu />
@@ -86,8 +65,6 @@ const Dashboard = () => {
             <span>GreenFuture</span>
           </div>
         </div>
-
-        {/* Search Bar */}
         <div className="lg:flex hidden items-center w-1/3 bg-gray-100 rounded-full px-4 py-2">
           <input
             type="text"
@@ -96,8 +73,6 @@ const Dashboard = () => {
           />
           <FaSearch className="text-gray-400" />
         </div>
-
-        {/* Right Section */}
         <div className="flex items-center space-x-4">
           <FaBell className="text-gray-500" />
           <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
@@ -122,11 +97,8 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-grow flex-col lg:mt-40 mt-20">
-        {/* Sidebar */}
+      <div className="flex flex-grow flex-col  gap-10 lg:mt-40 mt-20">
         <SideBar className="z-100" isVisible={showSidebar} />
-
-        {/* Main Center Content */}
         <div className="flex flex-grow flex-col items-center mt-[50px] ml-[60px]">
           <div className="relative w-32 h-32 mb-[40px] z-[-10] lg:ml-0 ml-[-50px]">
             <div className="absolute inset-0 rounded-full bg-green-500 opacity-20 animate-pulse"></div>
@@ -146,24 +118,15 @@ const Dashboard = () => {
             <FaArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
-        <section className="grid md:grid-cols-3 gap-10 mb-20">
-  <FeatureCard
-    icon={Leaf}
-    title="Eco-Friendly"
-    description="Contribute to a cleaner environment by reporting and collecting waste."
-  />
-  <FeatureCard
-    icon={Coins}
-    title="Earn Rewards"
-    description="Get tokens for your contributions to waste management efforts."
-  />
-  <FeatureCard
-    icon={FaUsers} // Use the imported Users icon
-    title="Community-Driven"
-    description="Be part of a growing community committed to sustainable practices."
-  />
-</section>
-        <section className="bg-white p-10 rounded-3xl shadow-lg mb-20">
+        
+        {/* Feature and Impact Sections */}
+        <section className="grid md:grid-cols-3 gap-10 mb-10">
+          <FeatureCard icon={Leaf} title="Eco-Friendly" description="Contribute to a cleaner environment by reporting and collecting waste." />
+          <FeatureCard icon={Coins} title="Earn Rewards" description="Get tokens for your contributions to waste management efforts." />
+          <FeatureCard icon={FaUsers} title="Community-Driven" description="Be part of a growing community committed to sustainable practices." />
+        </section>
+        
+        <section className="bg-white p-10 rounded-3xl shadow-lg mb-10">
           <h2 className="text-4xl font-bold mb-12 text-center text-gray-800">Our Impact</h2>
           <div className="grid md:grid-cols-4 gap-6">
             <ImpactCard title="Waste Collected" value={`${impactData.wasteCollected} kg`} icon={Recycle} />
@@ -172,29 +135,11 @@ const Dashboard = () => {
             <ImpactCard title="CO2 Offset" value={`${impactData.co2Offset} kg`} icon={Leaf} />
           </div>
         </section>
-        <div className="flex w-full justify-around">
-          <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg mt-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Recycling Guidelines</h2>
-            <h3 className="text-2xl font-semibold text-gray-800 mt-4 mb-2">What Can Be Recycled?</h3>
-            <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">
-              <li>Plastic bottles (rinsed)</li>
-              <li>Glass jars (clean)</li>
-              <li>Cardboard (flattened)</li>
-              <li>Aluminum cans (rinsed)</li>
-            </ul>
-            <h3 className="text-2xl font-semibold text-gray-800 mt-4 mb-2">What Cannot Be Recycled?</h3>
-            <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">
-              <li>Pizza boxes</li>
-              <li>Plastic bags</li>
-              <li>Polystyrene containers</li>
-              <li>Waxed cartons</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
+
 function ImpactCard({ title, value, icon: Icon }) {
   const formattedValue = typeof value === 'number' ? value.toLocaleString('en-US', { maximumFractionDigits: 1 }) : value;
   
@@ -204,7 +149,7 @@ function ImpactCard({ title, value, icon: Icon }) {
       <p className="text-3xl font-bold mb-2 text-gray-800">{formattedValue}</p>
       <p className="text-sm text-gray-600">{title}</p>
     </div>
-  )
+  );
 }
 
 function FeatureCard({ icon: Icon, title, description }) {
@@ -216,6 +161,7 @@ function FeatureCard({ icon: Icon, title, description }) {
       <h3 className="text-xl font-semibold mb-4 text-gray-800">{title}</h3>
       <p className="text-gray-600 leading-relaxed">{description}</p>
     </div>
-  )
+  );
 }
+
 export default Dashboard;
