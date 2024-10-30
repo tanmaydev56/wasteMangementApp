@@ -1,6 +1,7 @@
 import photo from "../assets/images/photo.jpg";
 import { SignupFormDemo } from "../components/LoginForm"; // Ensure correct import
 import logo from "../assets/images/logo.jpg";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
   return (
@@ -13,7 +14,7 @@ const LoginPage = () => {
       
       <SignupFormDemo />
        {/* Render the signup form */}
-       <a href="/dashboard">
+       <Link to="/dashboard">
         <button className="absolute lg:top-[30px] top-[90%] right-[99px] lg:flex items-center  space-x-2
         text-white font-bold
         bg-[#1a211e]
@@ -23,7 +24,7 @@ const LoginPage = () => {
         "
         
         >TO Dashboard</button>
-        </a>
+        </Link>
       <img src={photo} alt="Decorative" className="hidden md:block h-full object-cover w-[33%]" />
     </div>
   );
