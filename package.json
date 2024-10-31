@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "vite preview",  // This command will serve the built app in a preview mode
+    "start": "vite preview",
     "lint": "eslint ."
   },
   "dependencies": {
