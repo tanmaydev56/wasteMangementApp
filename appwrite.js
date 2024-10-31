@@ -33,7 +33,9 @@ export async function getRecentReports(limit = 100) {
 export async function getAllRewards() {
   try {
     const response = await databases.listDocuments(databaseId, rewardsCollectionId);
+    console.log("Rewards fetched:", response.documents);
     return response.documents;
+    
   } catch (error) {
     console.error("Error fetching rewards:", error);
     throw error;
@@ -89,6 +91,22 @@ export async function addReward(amount, rewardid) {
     console.log("Reward added:", document);
   } catch (error) {
     console.error("Error adding reward:", error);
+  }
+}
+export async function getRewardBalance(userId) {
+  try {
+    const response = await databases.listDocuments(databaseId, rewardsCollectionId, [
+      Query.equal("userid", userId) // Filter rewards by the user's ID
+    ]);
+
+    // Calculate total balance by summing the 'amount' fields
+    const balance = response.documents.reduce((total, doc) => total + (doc.amount || 0), 0);
+
+    console.log("Total reward balance:", balance);
+    return balance;
+  } catch (error) {
+    console.error("Error fetching reward balance:", error);
+    throw error;
   }
 }
 
