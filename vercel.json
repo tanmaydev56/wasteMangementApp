@@ -1,21 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "vite.config.js",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://cloud.appwrite.io/v1"
+    "REACT_APP_API_URL": "https://cloud.appwrite.io/v1" 
   }
 }
