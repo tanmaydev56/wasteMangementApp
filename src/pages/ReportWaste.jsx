@@ -4,8 +4,7 @@ import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button} from "../components/ui/button"
 import SideBar from '../components/SideBar';
-import { Leaf } from 'lucide-react';
-// import {Map,TitleLayer} from "react-leaflet"
+
 
 const ReportWaste = () => {
     const [isOpen, setIsOpen] = useState(false);
