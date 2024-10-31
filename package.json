@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "start": "vite preview",  // This command will serve the built app in a preview mode
+    "lint": "eslint ."
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.13.1",
