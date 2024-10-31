@@ -105,7 +105,7 @@ const News = () => {
         </div>
       </div>
 
-      {/* <div className='flex justify-center w-full items-center mt-[100px]'>
+      <div className='flex justify-center w-full items-center mt-[100px]'>
             <h1 className='text-3xl text-black'>NEWS</h1>
         </div>
         <div className='flex flex-col self-center'>
@@ -132,7 +132,7 @@ const News = () => {
                             </div>
                         ))}
                     </div>
-                    </div> */}
+                    </div>
     </div>
   </div>
   )
