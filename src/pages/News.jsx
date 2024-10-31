@@ -97,7 +97,7 @@ const News = () => {
                 <div className='flex justify-center w-full items-center mt-[100px]'>
                     <h1 className='text-3xl text-black'>NEWS</h1>
                 </div>
-                <div className='flex flex-col self-center'>
+                {/* <div className='flex flex-col self-center'>
                     <div className="w-full max-w-4xl space-y-6">
                         {articles.map((article) => (
                             <div key={article.url} className="bg-white p-4 rounded shadow-md">
@@ -121,7 +121,7 @@ const News = () => {
                             </div>
                         ))}
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
