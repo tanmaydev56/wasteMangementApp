@@ -6,31 +6,31 @@ import SideBar from '../components/SideBar';
 
 const News = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [articles, setArticles] = useState([]);
+    // const [articles, setArticles] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [showSidebar, setShowSidebar] = useState(false);
     const navigate = useNavigate();
-    const apiKey = import.meta.env.VITE_APP_NEWS_API_KEY;
+    // const apiKey = import.meta.env.VITE_APP_NEWS_API_KEY;
 
-    useEffect(() => {
-        fetchArticles("waste disposal OR recycling OR waste management");
-    }, []);
+    // useEffect(() => {
+    //     fetchArticles("waste disposal OR recycling OR waste management");
+    // }, []);
 
-    const fetchArticles = (query) => {
-        fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                if (data.articles) {
-                    setArticles(data.articles);
-                } else {
-                    console.error('No articles found');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    };
+    // const fetchArticles = (query) => {
+    //     fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
+    //         .then(response => {
+    //             if (!response.ok) throw new Error('Network response was not ok');
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             if (data.articles) {
+    //                 setArticles(data.articles);
+    //             } else {
+    //                 console.error('No articles found');
+    //             }
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    // };
 
     const toggleDropdown = () => setIsOpen(!isOpen);
     const toggleSidebar = () => setShowSidebar(!showSidebar);
