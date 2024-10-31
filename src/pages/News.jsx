@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +8,23 @@ import { Leaf } from 'lucide-react';
 
 const News = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [articles, setArticles] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [showSidebar, setShowSidebar] = useState(false);
     const navigate = useNavigate();
-  
+    const apiKey = '244fd74ed2f04de9b6f5cde2e11a138f';
+    useEffect(() => {
+      // Initial fetch of articles when the component mounts
+      fetchArticles("waste disposal OR recycling OR waste management");
+  }, []);
+
+  // Function to fetch articles based on a query
+  const fetchArticles = (query) => {
+      fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
+          .then(response => response.json())
+          .then(data => setArticles(data.articles))
+          .catch(error => console.error('Error:', error));
+  };
     const toggleDropdown = () => {
       setIsOpen(!isOpen);
     };
@@ -23,6 +37,16 @@ const News = () => {
       localStorage.removeItem('userToken');
       navigate('/login');
     };
+    const handleSearch = (e) => {
+      if (e.key === 'Enter' || e.type === 'click') {
+          if (searchQuery.trim() === '') {
+              fetchArticles("waste OR recycling OR waste management");
+          } else {
+              fetchArticles(searchQuery); 
+          }
+      }
+  };
+  
   return (
     <div className="h-screen w-full flex">
     {/* Sidebar */}
@@ -50,8 +74,11 @@ const News = () => {
             type="text"
             placeholder="Search..."
             className="flex-grow bg-transparent outline-none text-gray-600"
-          />
-          <FaSearch className="text-gray-400" />
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)} // Update search query state
+          onKeyDown={handleSearch} 
+         />
+          <FaSearch className="text-gray-400" onClick={handleSearch} />
         </div>
 
         {/* Right Section */}
@@ -81,7 +108,31 @@ const News = () => {
       <div className='flex justify-center w-full items-center mt-[100px]'>
             <h1 className='text-3xl text-black'>NEWS</h1>
         </div>
-     
+        <div className='flex flex-col self-center'>
+        <div className="w-full max-w-4xl space-y-6">
+                        {articles.map((article, index) => (
+                            <div key={index} className="bg-white p-4 rounded shadow-md">
+                                {article.urlToImage && (
+                                    <img
+                                        src={article.urlToImage}
+                                        alt={article.title}
+                                        className="w-full h-64 object-cover rounded mb-4"
+                                    />
+                                )}
+                                <h2 className="text-xl font-bold">{article.title}</h2>
+                                <p className="text-gray-700 mt-2">{article.description}</p>
+                                <a
+                                    href={article.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 mt-2 inline-block"
+                                >
+                                    Read more
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                    </div>
     </div>
   </div>
   )
