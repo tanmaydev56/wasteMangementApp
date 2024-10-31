@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import CollectWaste from './components/CollectWaste';
 import ReportWaste from './pages/ReportWaste';
-import News from './pages/News';
+// import News from './pages/News';
 import Rewards from './pages/Rewards';
 import NotFound from './pages/NotFound'; // Create this component
 import SubmitData from './components/SubmitData';
@@ -22,7 +22,7 @@ function App() {
        
      
         <Route path="/report-waste" element={<ReportWaste />} />
-        <Route path="/news" element={<News />} />
+        {/* <Route path="/news" element={<News />} /> */}
         <Route path="/rewards" element={<Rewards />} />
         <Route path="*" element={<NotFound />} />
         <Route path='/submitdata' element={<SubmitData />} />
