@@ -4,9 +4,9 @@ import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import SideBar from '../components/SideBar';
-import { Coins, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Coins, ArrowUpRight, ArrowDownRight, Gift, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { getAllRewards } from '../../appwrite';
+import { getAllRewards } from '../../appwrite'; // Import your getAllRewards function
 
 const sampleTransactions = [
   { id: 1, type: 'earned_report', amount: 10, description: 'Reported waste', date: '2024-10-28' },
@@ -16,7 +16,7 @@ const sampleTransactions = [
 const Rewards = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [balance, setBalance] = useState(15);
+  const [balance, setBalance] = useState(15); // Initial balance
   const [redeemedRewards, setRedeemedRewards] = useState(new Set());
   const [transactions] = useState(sampleTransactions);
   const [rewards, setRewards] = useState([]);
@@ -24,6 +24,7 @@ const Rewards = () => {
   
   const navigate = useNavigate();
 
+  // Fetch rewards from database
   useEffect(() => {
     const fetchRewards = async () => {
       try {
@@ -39,13 +40,14 @@ const Rewards = () => {
     fetchRewards();
   }, []);
 
+  // Calculate total points from available rewards
   const totalPoints = rewards.reduce((sum, reward) => sum + (reward.amount || 0), 0);
 
   const handleRedeemReward = (rewardId) => {
-    const reward = rewards.find(r => r.rewardid === rewardId);
-    if (reward && reward.amount) {
-      setBalance(prevBalance => prevBalance + reward.amount);
-      setRedeemedRewards(prev => new Set(prev).add(reward.rewardid));
+    const reward = rewards.find(r => r.rewardid === rewardId); // Find the reward by ID
+    if (reward && reward.amount) { // Check if the reward has an amount
+      setBalance(prevBalance => prevBalance + reward.amount); // Update the balance
+      setRedeemedRewards(prev => new Set(prev).add(reward.rewardid)); // Add the redeemed reward to the Set
       toast.success(`Successfully redeemed: ${reward.title || 'Reward'} - Added ${reward.amount} points`);
     } else {
       toast.error('Reward cannot be redeemed');
@@ -141,7 +143,7 @@ const Rewards = () => {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2  gap-8">
               <div>
                 <h2 className="text-2xl font-semibold mb-4 text-gray-800">Recent Transactions</h2>
                 <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -169,36 +171,42 @@ const Rewards = () => {
                   )}
                 </div>
               </div>
+
+           
             </div>
             <div className='flex flex-col mt-10'>
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">Available Rewards</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:w-[1000px] w-auto">
-                {rewards.length > 0 ? (
-                  rewards.map(reward => (
-                    <div key={reward.$id} className="bg-white flex justify-between p-4 rounded-xl shadow-md relative">
-                      <div className='flex flex-col'>
-                        <h3 className="text-lg font-semibold mb-2 text-gray-800">
-                          {reward.title || "No Title"}
-                        </h3>
-                        <p className="text-gray-500 mb-4">
-                          {reward.description || "No Description"}
-                        </p>
-                        <Button 
-                          onClick={() => handleRedeemReward(reward.rewardid)} 
-                          className={`mt-4 ${redeemedRewards.has(reward.rewardid) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white'}`} 
-                          disabled={redeemedRewards.has(reward.rewardid)}
-                        >
-                          {redeemedRewards.has(reward.rewardid) ? 'Redeemed' : 'Redeem'} 
-                          {reward.amount > 0 && ` (${reward.amount} points)`}
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex justify-center items-center col-span-full text-gray-500">No rewards available</div>
-                )}
-              </div>
-            </div>
+  <h2 className="text-2xl font-semibold mb-4 text-gray-800">Available Rewards</h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:w-[1000px] w-auto"> {/* Grid layout */}
+    {rewards.length > 0 ? (
+      rewards.map(reward => (
+        <div key={reward.$id} className="bg-white  flex justify-between  p-4 rounded-xl shadow-md relative">
+          <div className='flex flex-col'>
+          <h3 className="text-lg font-semibold mb-2 text-gray-800">
+            {reward.title || "No Title"}
+          </h3>
+          <p className="text-gray-500 mb-4">
+            {reward.description || "No Description"}
+          </p>
+          <Button 
+            onClick={() => handleRedeemReward(reward.rewardid)} 
+            className={`mt-4  ${redeemedRewards.has(reward.rewardid) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white'}`} 
+            disabled={redeemedRewards.has(reward.rewardid)}
+          >
+            {redeemedRewards.has(reward.rewardid) ? 'Redeemed' : 'Redeem Reward'}
+          </Button>
+          </div>
+          <span className="text-lg font-bold text-green-500">{reward.amount} points</span>
+         
+        </div>
+      ))
+    ) : isLoading ? (
+      <div className="p-4 text-center text-gray-500">Loading rewards...</div>
+    ) : (
+      <div className="p-4 text-center text-gray-500">No rewards available</div>
+    )}
+  </div>
+</div>
+
           </div>
         </div>
       </div>
