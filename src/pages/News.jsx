@@ -49,7 +49,7 @@ const News = () => {
     return (
         <div className="h-screen w-full flex">
             <SideBar isVisible={!showSidebar} />
-            <div className={`flex-grow flex flex-col ${showSidebar ? 'ml-0' : 'ml-0'} transition-all duration-300`}>
+            <div className={`flex-grow flex flex-col transition-all duration-300`}>
                 <div className="flex items-center justify-between h-20 px-4 bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
                     <div className="flex items-center space-x-4">
                         <button className="text-xl" onClick={toggleSidebar}>
