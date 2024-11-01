@@ -6,7 +6,7 @@ import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Coins, Recycle, MapPin } from 'lucide-react';
-import { getRecentReports, getAllRewards, getWasteCollectionTasks, account } from "../../appwrite"; // Ensure correct path
+import { getRecentReports, getAllRewards, getWasteCollectionTasks, account, getRewardBalance } from "../../appwrite"; // Ensure correct path
 
 const Dashboard = () => {
   const [impactData, setImpactData] = useState({   
@@ -19,6 +19,7 @@ const Dashboard = () => {
   
   const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [balance, setBalance] = useState(0);
   const navigate = useNavigate();
 
   // Fetch impact data on component mount
@@ -39,6 +40,21 @@ useEffect(() => {
     });
   };
   fetchImpactData();
+ 
+    const fetchBalance = async () => {
+      try {
+        const userEmail = localStorage.getItem('userEmail');
+        if (userEmail) {
+          const userBalance = await getRewardBalance(userEmail); // Fetch balance from backend
+          setBalance(userBalance);
+        }
+      } catch (error) {
+        console.error("Failed to fetch balance:", error);
+      }
+    };
+
+    fetchBalance();
+ 
     
  
 }, []);
@@ -77,7 +93,7 @@ useEffect(() => {
           <FaBell className="text-gray-500" />
           <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
             <FaLeaf className="text-green-500" />
-            <span className="text-sm font-semibold text-gray-800">0.00</span>
+            <span className="text-sm font-semibold text-gray-800">{balance.toFixed(2)}</span>
           </div>
           <div className="relative inline-block">
             <button onClick={toggleDropdown} className="text-gray-500 text-2xl">

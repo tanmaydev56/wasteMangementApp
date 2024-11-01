@@ -4,12 +4,11 @@ import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button} from "../components/ui/button"
 import SideBar from '../components/SideBar';
-
+import { Leaf } from 'lucide-react';
 
 const ReportWaste = () => {
     const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
- 
   const navigate = useNavigate();
 
   const toggleDropdown = () => {
@@ -83,11 +82,7 @@ const ReportWaste = () => {
             <h1 className='text-3xl text-black'>REPORT WASTE</h1>
         </div>
 
-        {/* <Map center={center}
-        zoom={ZOOM_LEVEL}
-        ref={mapRef}>
-          <TitleLayer url={SiOsmc.maptiler.url} attribution={SiOsmc.maptiler.attribution}/>
-        </Map> */}
+        
        
       </div>
     </div>
