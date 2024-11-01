@@ -56,16 +56,17 @@ export async function getWasteCollectionTasks(limit = 100) {
   }
 }
 
-// Function to add a report
-export async function addReport(amount, userid) {
+export async function addReport(amount, userid, title, description) {
   try {
     const document = await databases.createDocument(
       databaseId,
       reportsCollectionId,
-      "unique()", // Use a unique ID for the document
+      "unique()",
       { 
-        amount: amount,
-        userid: userid,
+        amount,
+        userid,
+        title,
+        description,
         createdat: new Date().toISOString(),
       }
     );
@@ -75,16 +76,26 @@ export async function addReport(amount, userid) {
   }
 }
 
-// Function to add a reward
-export async function addReward(amount, rewardid) {
+export async function getReportCount() {
+  try {
+    const response = await databases.listDocuments(databaseId, reportsCollectionId);
+    return response.total; // 'total' gives the count of documents in the collection
+  } catch (error) {
+    console.error("Error fetching report count:", error);
+    throw error;
+  }
+}
+export async function addReward(amount, rewardid, title, description) {
   try {
     const document = await databases.createDocument(
       databaseId,
       rewardsCollectionId,
-      "unique()", // Use a unique ID for the document
+      "unique()",
       { 
-        amount: amount,
-        rewardid: rewardid,
+        amount,
+        rewardid,
+        title,
+        description,
         expirydate: new Date().toISOString(),
       }
     );

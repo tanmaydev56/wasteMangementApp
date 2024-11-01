@@ -7,10 +7,32 @@ import SideBar from '../components/SideBar';
 import { Leaf } from 'lucide-react';
 
 const ReportWaste = () => {
+  const [reportAmount, setReportAmount] = useState('');
+  const [rewardAmount, setRewardAmount] = useState('');
+  const [userid, setUserid] = useState(''); 
     const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const navigate = useNavigate();
-
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    const reportAmountInt = parseInt(reportAmount, 10); // Convert reportAmount to an integer
+    if (!isNaN(reportAmountInt) && userid) {
+      await addReport(reportAmountInt, userid);
+      setReportAmount(''); // Clear input after submission
+    } else {
+      console.error("Report amount must be a valid integer.");
+    }
+  };
+  const handleRewardSubmit = async (e) => {
+    e.preventDefault();
+    const rewardAmountInt = parseInt(rewardAmount, 10); // Convert rewardAmount to an integer
+    if (!isNaN(rewardAmountInt) && userid) {
+      await addReward(rewardAmountInt, userid);
+      setRewardAmount(''); // Clear input after submission
+    } else {
+      console.error("Reward amount must be a valid integer.");
+    }
+  };
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -78,8 +100,30 @@ const ReportWaste = () => {
             </div>
           </div>
         </div>
-        <div className='flex justify-center w-full items-center mt-[100px]'>
+        <div className='flex flex-col  justify-center w-full items-center mt-[100px]'>
             <h1 className='text-3xl text-black'>REPORT WASTE</h1>
+            <form onSubmit={handleReportSubmit} className="mb-4">
+        <h3 className="text-xl mb-2">Add Report</h3>
+        <input
+          type="number"
+          value={reportAmount}
+          onChange={(e) => setReportAmount(e.target.value)}
+          placeholder="Amount of waste collected (kg)"
+          className="border border-gray-300 rounded p-2 mb-2 w-full"
+          required
+        />
+        <input
+          type="text"
+          value={userid}
+          onChange={(e) => setUserid(e.target.value)}
+          placeholder="User ID"
+          className="border border-gray-300 rounded p-2 mb-4 w-full"
+          required
+        />
+        <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+          Submit Report
+        </Button>
+      </form>
         </div>
 
         

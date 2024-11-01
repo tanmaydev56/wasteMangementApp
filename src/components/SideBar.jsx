@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaHome, FaMapMarkerAlt, FaTrashAlt, FaGift, FaCog, FaNewspaper } from 'react-icons/fa';
+import { PiArrowFatLinesRightBold } from 'react-icons/pi';
 import { NavLink } from 'react-router-dom';
 
 const SideBar = ({ isVisible }) => {
@@ -64,6 +65,17 @@ const SideBar = ({ isVisible }) => {
         >
           <FaNewspaper className="mr-2" />
           <span>News</span>
+        </NavLink>
+        <NavLink
+          to="/submitdata"
+          className={({ isActive }) =>
+            `flex items-center p-2 rounded-md cursor-pointer ${
+              isActive ? 'bg-green-100 text-green-700' : ''
+            }`
+          }
+        >
+          <PiArrowFatLinesRightBold className="mr-2" />
+          <span>Submit Data</span>
         </NavLink>
       </div>
       <NavLink
