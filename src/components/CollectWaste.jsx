@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
-import { useNavigate } from 'react-router-dom';
 import { addReward } from '../../appwrite';
 import { Button } from "../components/ui/button";
 import SideBar from './SideBar';
 import { motion } from 'framer-motion'; 
+import { useNavigate } from 'react-router-dom';
 
 const CollectWaste = () => {
   const [rewardAmount, setRewardAmount] = useState('');
-  const [userid, setUserid] = useState('');
+  const [rewardid, setRewardid] = useState(''); 
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -20,15 +20,15 @@ const CollectWaste = () => {
   const handleRewardSubmit = async (e) => {
     e.preventDefault();
     const rewardAmountInt = parseInt(rewardAmount, 10);
-    if (!isNaN(rewardAmountInt) && userid && title && description) {
-      await addReward({ amount: rewardAmountInt, userid, title, description });
+    if (!isNaN(rewardAmountInt) && rewardid && title && description) {
+      await addReward({ amount: rewardAmountInt, rewardid, title, description });
       setRewardAmount('');
-      setUserid('');
+      setRewardid(''); 
       setTitle('');
       setDescription('');
       setShowSuccessMessage(true);
 
-      // Hide the success message after 3 seconds
+     
       setTimeout(() => {
         setShowSuccessMessage(false);
       }, 3000);
@@ -106,7 +106,7 @@ const CollectWaste = () => {
 
           {/* Reward Submission Form */}
           <form onSubmit={handleRewardSubmit} className="mb-6">
-            <h3 className="text-xl mb-2">Add Reward<span className='  absolute mt-[1px] ml-[5px] text-green-600 font-bold text-[15px]'>(All the rewards are added in the reward page)</span></h3>
+            <h3 className="text-xl mb-2">Add Reward<span className='absolute mt-[1px] ml-[5px] text-green-600 font-bold lg:text-[15px] text-[12px] '>(All the rewards are added in the reward page)</span></h3>
             <input
               type="number"
               value={rewardAmount}
@@ -117,9 +117,9 @@ const CollectWaste = () => {
             />
             <input
               type="text"
-              value={userid}
-              onChange={(e) => setUserid(e.target.value)}
-              placeholder="User ID"
+              value={rewardid} 
+              onChange={(e) => setRewardid(e.target.value)} 
+              placeholder="Reward ID"
               className="border border-gray-300 rounded p-2 mb-4 w-full"
               required
             />
@@ -153,8 +153,8 @@ const CollectWaste = () => {
               transition={{ duration: 0.5 }}
               className="absolute flex gap-2 top-20 bg-green-500 text-white p-4 rounded-lg shadow-lg"
             >
-             <h1>Reward added successfully!</h1>
-             <FaCheckCircle  className="mt-[5.5px] text-white" />
+              <h1>Reward added successfully!</h1>
+              <FaCheckCircle className="mt-[5.5px] text-white" />
             </motion.div>
           )}
         </div>

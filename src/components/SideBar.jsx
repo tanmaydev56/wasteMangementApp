@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { FaHome, FaMapMarkerAlt, FaTrashAlt, FaGift, FaCog, FaNewspaper } from 'react-icons/fa';
-import { PiArrowFatLinesRightBold } from 'react-icons/pi';
+
 import { NavLink } from 'react-router-dom';
 
 const SideBar = ({ isVisible }) => {

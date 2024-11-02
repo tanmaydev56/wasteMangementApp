@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import SideBar from '../components/SideBar';
-import { Coins, ArrowUpRight, ArrowDownRight, Gift, AlertCircle } from 'lucide-react';
+import { Coins, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { getAllRewards } from '../../appwrite'; // Import your getAllRewards function
 
@@ -24,14 +24,14 @@ const Rewards = () => {
 
   const navigate = useNavigate();
 
-  // Fetch rewards from database
+  
   useEffect(() => {
     const fetchRewards = async () => {
       try {
         const rewardsData = await getAllRewards();
-        console.log('Rewards fetched:', rewardsData); // Check fetched data
+        console.log('Rewards fetched:', rewardsData); 
         if (rewardsData.length === 0) {
-          console.log('No rewards available'); // Debugging
+          console.log('No rewards available'); 
         }
         setRewards(rewardsData);
       } catch (error) {
@@ -47,19 +47,28 @@ const Rewards = () => {
   
   
 
-  // Calculate total points from available rewards
+  
   const totalPoints = rewards.reduce((sum, reward) => sum + (reward.amount || 0), 0);
 
   const handleRedeemReward = (rewardId) => {
-    const reward = rewards.find(r => r.rewardid === rewardId); // Find the reward by ID
-    if (reward && reward.amount) { // Check if the reward has an amount
-      setBalance(prevBalance => prevBalance + reward.amount); // Update the balance
-      setRedeemedRewards(prev => new Set(prev).add(reward.rewardid)); // Add the redeemed reward to the Set
+    console.log(`Reward ID: ${rewardId}, Already Redeemed: ${redeemedRewards.has(rewardId)}`);
+    
+    if (redeemedRewards.has(rewardId)) {
+      toast.error('Reward already redeemed');
+      return;
+    }
+  
+    const reward = rewards.find(r => r.rewardid === rewardId);
+    if (reward) {
+      setBalance(prevBalance => prevBalance + reward.amount);
+      setRedeemedRewards(prev => new Set(prev).add(rewardId));
       toast.success(`Successfully redeemed: ${reward.title || 'Reward'} - Added ${reward.amount} points`);
     } else {
       toast.error('Reward cannot be redeemed');
     }
   };
+  
+  
 
   const handleLogout = () => {
     localStorage.removeItem('userToken'); 
@@ -195,12 +204,13 @@ const Rewards = () => {
             {reward.description || "No Description"}
           </p>
           <Button 
-            onClick={() => handleRedeemReward(reward.rewardid)} 
-            className={`mt-4  ${redeemedRewards.has(reward.rewardid) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white'}`} 
-            disabled={redeemedRewards.has(reward.rewardid)}
-          >
-            {redeemedRewards.has(reward.rewardid) ? 'Redeemed' : 'Redeem Reward'}
-          </Button>
+  onClick={() => handleRedeemReward(reward.rewardid)} 
+  className={`mt-4 ${redeemedRewards.has(reward.rewardid) ? 'bg-gray-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white'}`} 
+  disabled={redeemedRewards.has(reward.rewardid)}
+>
+  {redeemedRewards.has(reward.rewardid) ? 'Redeemed' : 'Redeem Reward'}
+</Button>
+
           </div>
           <span className="text-lg font-bold text-green-500">{reward.amount} points</span>
          

@@ -1,18 +1,18 @@
 import SideBar from '../components/SideBar';
-import { Leaf } from 'lucide-react';
+import { Leaf, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight, FaUsers } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
-import { Coins, Recycle, MapPin } from 'lucide-react';
-import { getRecentReports, getAllRewards, getWasteCollectionTasks, account, getRewardBalance } from "../../appwrite"; // Ensure correct path
+import { Coins } from 'lucide-react';
+import { getRecentReports, getAllRewards, getRewardBalance } from "../../appwrite"; 
 import Chart from '../components/charts';
 
 const Dashboard = () => {
   const [impactData, setImpactData] = useState({   
-    // actual data
     wasteCollected: 1000,
+    wasteRecycled: 500, 
     reportsSubmitted: 16,
     tokensEarned: 1532,
     co2Offset: 254
@@ -23,30 +23,29 @@ const Dashboard = () => {
   const [balance, setBalance] = useState(0);
   const navigate = useNavigate();
 
-  // Fetch impact data on component mount
- // Fetch impact data on component mount
-useEffect(() => {
-  const fetchImpactData = async () => {
-    const recentReports = await getRecentReports();
-    const allRewards = await getAllRewards();
-    const wasteCollectionTasks = await getWasteCollectionTasks();
+  useEffect(() => {
+    const fetchImpactData = async () => {
+      try {
+        const recentReports = await getRecentReports();
+        const allRewards = await getAllRewards();
+    
 
-    // Assuming your backend returns data in the format below
-    setImpactData({
-      
-      wasteCollected: recentReports.reduce((total, report) => total + report.amount, 0), // Example aggregation
-      reportsSubmitted: recentReports.length,
-      tokensEarned: allRewards.reduce((total, reward) => total + reward.amount, 0), // Example aggregation
-      co2Offset: wasteCollectionTasks.reduce((total, task) => total + task.co2Offset, 0), // Example aggregation
-    });
-  };
-  fetchImpactData();
- 
+        setImpactData({
+          wasteCollected: 1000, 
+          wasteRecycled: 500, 
+          reportsSubmitted: recentReports.length, 
+          tokensEarned: allRewards.reduce((total, reward) => total + reward.amount, 0),
+          co2Offset: 254 
+        });
+      } catch (error) {
+        console.error("Error fetching impact data:", error);
+      }
+    };
     const fetchBalance = async () => {
       try {
         const userEmail = localStorage.getItem('userEmail');
         if (userEmail) {
-          const userBalance = await getRewardBalance(userEmail); // Fetch balance from backend
+          const userBalance = await getRewardBalance(userEmail); 
           setBalance(userBalance);
         }
       } catch (error) {
@@ -54,12 +53,9 @@ useEffect(() => {
       }
     };
 
+    fetchImpactData();
     fetchBalance();
- 
-    
- 
-}, []);
-
+  }, []);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
   const toggleSidebar = () => setShowSidebar(!showSidebar);
@@ -114,7 +110,7 @@ useEffect(() => {
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-grow flex-col  gap-10 lg:mt-40 mt-20">
+      <div className="flex flex-grow flex-col gap-10 lg:mt-40 mt-20">
         <SideBar className="z-100" isVisible={showSidebar} />
         <div className="flex flex-grow flex-col items-center mt-[50px] ml-[60px]">
           <div className="relative w-32 h-32 mb-[40px] z-[-10] lg:ml-0 ml-[-50px]">
@@ -144,27 +140,28 @@ useEffect(() => {
         </section>
         
         <section className="bg-white p-10 rounded-3xl shadow-lg mb-10">
-          <h2 className="text-4xl font-bold mb-12 text-center text-gray-800">Our Impact</h2>
-          <div className="grid md:grid-cols-4 gap-6">
-            <ImpactCard title="Waste Collected" value={`${impactData.wasteCollected} kg`} icon={Recycle} />
+          <h2 className="text-4xl font-bold mb-12 mt-[-50px] text-center text-gray-800">Our Impact</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <ImpactCard title="Waste Collected" value={`${impactData.wasteCollected} kg`} icon={Leaf} />
+            <ImpactCard title="Waste Recycled" value={`${impactData.wasteRecycled} kg`} icon={Leaf} /> {/* New Impact Card */}
             <ImpactCard title="Reports Submitted" value={impactData.reportsSubmitted.toString()} icon={MapPin} />
             <ImpactCard title="Tokens Earned" value={impactData.tokensEarned.toString()} icon={Coins} />
-            <ImpactCard title="CO2 Offset" value={`${impactData.co2Offset} kg`} icon={Leaf} />
           </div>
         </section>
+      
       </div>
+      <div className='flex justify-center lg:translate-x-0 translate-x-[-30px] items-center w-full'>
       <Chart />
+      </div>
     </div>
   );
 };
 
 function ImpactCard({ title, value, icon: Icon }) {
-  const formattedValue = typeof value === 'number' ? value.toLocaleString('en-US', { maximumFractionDigits: 1 }) : value;
-  
   return (
     <div className="p-6 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-300 ease-in-out hover:shadow-md">
       <Icon className="h-10 w-10 text-green-500 mb-4" />
-      <p className="text-3xl font-bold mb-2 text-gray-800">{formattedValue}</p>
+      <p className="text-3xl font-bold mb-2 text-gray-800">{value}</p>
       <p className="text-sm text-gray-600">{title}</p>
     </div>
   );

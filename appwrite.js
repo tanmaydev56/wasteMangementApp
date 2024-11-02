@@ -110,6 +110,7 @@ export async function addReward(rewardData) {
   }
 }
 
+
 export async function getRewardBalance(userId) {
   try {
     const response = await databases.listDocuments(databaseId, rewardsCollectionId, [
