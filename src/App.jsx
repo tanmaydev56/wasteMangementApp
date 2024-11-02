@@ -7,7 +7,7 @@ import ReportWaste from './pages/ReportWaste';
 import News from './pages/News';
 import Rewards from './pages/Rewards';
 import NotFound from './pages/NotFound'; // Create this component
-import SubmitData from './components/SubmitData';
+
 
 
 
@@ -25,7 +25,7 @@ function App() {
         <Route path="/news" element={<News />} />
         <Route path="/rewards" element={<Rewards />} />
         <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
-        <Route path='/submitdata' element={<SubmitData />} />
+ 
       </Routes>
     </Router>
   );

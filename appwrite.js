@@ -56,7 +56,9 @@ export async function getWasteCollectionTasks(limit = 100) {
   }
 }
 
-export async function addReport(amount, userid, title, description) {
+export async function addReport(reportData) {
+  const { amount, userid, title, description } = reportData; // Destructure fields from the reportData object
+  
   try {
     const document = await databases.createDocument(
       databaseId,
@@ -76,6 +78,7 @@ export async function addReport(amount, userid, title, description) {
   }
 }
 
+
 export async function getReportCount() {
   try {
     const response = await databases.listDocuments(databaseId, reportsCollectionId);
@@ -85,7 +88,9 @@ export async function getReportCount() {
     throw error;
   }
 }
-export async function addReward(amount, rewardid, title, description) {
+export async function addReward(rewardData) {
+  const { amount, rewardid, title, description } = rewardData; // Destructure fields from the rewardData object
+
   try {
     const document = await databases.createDocument(
       databaseId,
@@ -104,6 +109,7 @@ export async function addReward(amount, rewardid, title, description) {
     console.error("Error adding reward:", error);
   }
 }
+
 export async function getRewardBalance(userId) {
   try {
     const response = await databases.listDocuments(databaseId, rewardsCollectionId, [

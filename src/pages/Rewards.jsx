@@ -21,7 +21,7 @@ const Rewards = () => {
   const [transactions] = useState(sampleTransactions);
   const [rewards, setRewards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const navigate = useNavigate();
 
   // Fetch rewards from database
@@ -29,16 +29,23 @@ const Rewards = () => {
     const fetchRewards = async () => {
       try {
         const rewardsData = await getAllRewards();
+        console.log('Rewards fetched:', rewardsData); // Check fetched data
+        if (rewardsData.length === 0) {
+          console.log('No rewards available'); // Debugging
+        }
         setRewards(rewardsData);
       } catch (error) {
+        console.error("Error fetching rewards:", error);
         toast.error("Error fetching rewards");
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchRewards();
   }, []);
+  
+  
 
   // Calculate total points from available rewards
   const totalPoints = rewards.reduce((sum, reward) => sum + (reward.amount || 0), 0);

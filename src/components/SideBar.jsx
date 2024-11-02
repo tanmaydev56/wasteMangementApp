@@ -66,17 +66,7 @@ const SideBar = ({ isVisible }) => {
           <FaNewspaper className="mr-2" />
           <span>News</span>
         </NavLink>
-        <NavLink
-          to="/submitdata"
-          className={({ isActive }) =>
-            `flex items-center p-2 rounded-md cursor-pointer ${
-              isActive ? 'bg-green-100 text-green-700' : ''
-            }`
-          }
-        >
-          <PiArrowFatLinesRightBold className="mr-2" />
-          <span>Submit Data</span>
-        </NavLink>
+       
       </div>
       <NavLink
         to="/settings"
