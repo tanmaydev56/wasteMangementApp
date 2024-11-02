@@ -9,11 +9,103 @@ const client = new Client()
 export const account = new Account(client);
 export const databases = new Databases(client);
 
+
+
+
 // Database and collection IDs from .env or defined directly here
 const databaseId = import.meta.env.VITE_PUBLIC_DATABASE_ID;
-const reportsCollectionId = "672284a20031de80517d"; // Replace with actual ID
-const rewardsCollectionId = "672284ae0018331a31f3"; // Replace with actual ID
-const tasksCollectionId = "672284be0021c05c8322"; // Replace with actual ID
+const reportsCollectionId = import.meta.env.VITE_PUBLIC_REPORTS_COLLECTION_ID; 
+const rewardsCollectionId = import.meta.env.VITE_PUBLIC_REWARDS_COLLECTION_ID; 
+const tasksCollectionId = import.meta.env.VITE_PUBLIC_TASKS_COLLECTION_ID; 
+const usersCollectionId = import.meta.env.VITE_PUBLIC_USERINFO_COLLECTION_ID;
+
+
+
+
+
+// Function to handle user registration and store info in the database
+
+export async function registerUser(name, email, password, phoneNumber, bio) {
+  try {
+    // Create a user session
+    const user = await account.create('unique()', email, password, name);
+    console.log("Registering user with the following details:", {
+      name,
+      email,
+      password,
+      phoneNumber,
+      bio,
+  });
+  
+    // After user creation, store additional info in the Users collection
+    const userInfo = {
+      name: name,
+      email: email,
+      password: password,
+      phoneNumber: phoneNumber || "", // Optional field
+      bio: bio || "" // Optional field
+    };
+
+    // Store user info in the Users collection
+    await databases.createDocument(
+      databaseId,
+      usersCollectionId,
+      user.$id, // Use the user ID as the document ID
+      userInfo
+    );
+
+    console.log("User registered and info stored:", userInfo);
+  } catch (error) {
+    console.error("Error registering user:", error);
+  }
+}
+// Function to handle user login and store user info if not exists
+export async function handleLogin(email, password, name, phoneNumber, bio) {
+  try {
+    // Authenticate user
+    const session = await account.createSession(email, password);
+    
+    // Check if user info already exists in the Users collection
+    const response = await databases.listDocuments(databaseId, usersCollectionId, [
+      Query.equal("email", email) // Check if the user already exists
+    ]);
+
+    if (response.total === 0) {
+      // If user does not exist, register the user and store their info
+      await registerUser(name, email, password, phoneNumber, bio);
+    } else {
+      console.log("User already exists, info retrieved:", response.documents[0]);
+    }
+
+    console.log("User logged in successfully:", session);
+  } catch (error) {
+    console.error("Error during login:", error);
+  }
+}
+// Function to fetch user info
+export async function getUserInfo(userid) {
+  try {
+    const response = await databases.getDocument(databaseId, usersCollectionId, userid);
+    return response; // Return user info
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    throw error;
+  }
+}
+// Function to update user info
+export async function updateUserInfo(userid, updatedData) {
+  try {
+    const document = await databases.updateDocument(
+      databaseId,
+      usersCollectionId,
+      userid,
+      updatedData
+    );
+    console.log("User info updated:", document);
+  } catch (error) {
+    console.error("Error updating user info:", error);
+  }
+}
 
 // Function to fetch recent reports
 export async function getRecentReports(limit = 100) {
@@ -111,10 +203,10 @@ export async function addReward(rewardData) {
 }
 
 
-export async function getRewardBalance(userId) {
+export async function getRewardBalance(userid) {
   try {
     const response = await databases.listDocuments(databaseId, rewardsCollectionId, [
-      Query.equal("userid", userId) // Filter rewards by the user's ID
+      Query.equal("userid", userid) // Filter rewards by the user's ID
     ]);
 
     // Calculate total balance by summing the 'amount' fields
