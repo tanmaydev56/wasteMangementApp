@@ -83,29 +83,43 @@ export async function handleLogin(email, password, name, phoneNumber, bio) {
   }
 }
 // Function to fetch user info
-export async function getUserInfo(userid) {
+export async function getUserInfo(documentid) {
   try {
-    const response = await databases.getDocument(databaseId, usersCollectionId, userid);
-    return response; // Return user info
+    const response = await databases.getDocument(databaseId, usersCollectionId, documentid);
+    return response; 
   } catch (error) {
     console.error("Error fetching user info:", error);
-    throw error;
+    throw error;  // Re-throw the error to handle it further up if needed
   }
 }
+
 // Function to update user info
-export async function updateUserInfo(userid, updatedData) {
+export const updateUserInfo = async (userid, updatedData) => {
   try {
+    // Define valid attributes according to your Appwrite collection schema
+    const { name, email, phoneNumber, bio } = updatedData;
+
+    // Ensure to only send the attributes that are valid in your collection schema
+    const dataToUpdate = {
+      name,
+      email,
+      phoneNumber,
+      bio,
+    };
+
     const document = await databases.updateDocument(
       databaseId,
       usersCollectionId,
       userid,
-      updatedData
+      dataToUpdate
     );
-    console.log("User info updated:", document);
+
+    return document; // Return the updated document
   } catch (error) {
     console.error("Error updating user info:", error);
+    throw error; // Re-throw the error for further handling if needed
   }
-}
+};
 
 // Function to fetch recent reports
 export async function getRecentReports(limit = 100) {

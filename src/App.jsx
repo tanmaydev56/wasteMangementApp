@@ -6,7 +6,8 @@ import CollectWaste from './components/CollectWaste';
 import ReportWaste from './pages/ReportWaste';
 import News from './pages/News';
 import Rewards from './pages/Rewards';
-import NotFound from './pages/NotFound'; // Create this component
+import NotFound from './pages/NotFound';
+import Profile from './pages/Profile'; // Create this component
 
 
 
@@ -24,8 +25,10 @@ function App() {
         <Route path="/report-waste" element={<ReportWaste />} />
         <Route path="/news" element={<News />} />
         <Route path="/rewards" element={<Rewards />} />
+        <Route path="/profile" element={<Profile  
+          userId={localStorage.getItem('userToken')}/>} />
         <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
- 
+
       </Routes>
     </Router>
   );
