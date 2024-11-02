@@ -2,23 +2,30 @@ import React, { useState } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-import { Button} from "../components/ui/button"
+import { Button } from "../components/ui/button";
 import SideBar from '../components/SideBar';
+<<<<<<< HEAD
 import { Leaf } from 'lucide-react';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getReportCount,addReport } from '../../appwrite'; 
 
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+=======
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+>>>>>>> f5bcefc3f2a3dc4bcd241827a03e46506a4d5f8d
 
 const ReportWaste = () => {
   const [reportAmount, setReportAmount] = useState('');
  
   const [userid, setUserid] = useState(''); 
-    const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [position, setPosition] = useState(null);
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [reportCount, setReportCount] = useState(0);
@@ -94,6 +101,36 @@ const ReportWaste = () => {
 
   
   
+=======
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    const reportAmountInt = parseInt(reportAmount, 10); // Convert reportAmount to an integer
+    if (!isNaN(reportAmountInt) && userid) {
+      if (position) {
+        alert(`Latitude: ${position.lat}, Longitude: ${position.lng}`);
+        // Add your existing submit logic here
+        await addReport(reportAmountInt, userid);
+        setReportAmount(''); // Clear input after submission
+      } else {
+        alert('Please select a location on the map.');
+      }
+    } else {
+      console.error("Report amount must be a valid integer.");
+    }
+  };
+
+  const handleRewardSubmit = async (e) => {
+    e.preventDefault();
+    const rewardAmountInt = parseInt(rewardAmount, 10); // Convert rewardAmount to an integer
+    if (!isNaN(rewardAmountInt) && userid) {
+      await addReward(rewardAmountInt, userid);
+      setRewardAmount(''); // Clear input after submission
+    } else {
+      console.error("Reward amount must be a valid integer.");
+    }
+  };
+
+>>>>>>> f5bcefc3f2a3dc4bcd241827a03e46506a4d5f8d
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -105,6 +142,19 @@ const ReportWaste = () => {
   const handleLogout = () => {
     localStorage.removeItem('userToken');
     navigate('/login');
+  };
+
+  const LocationMarker = () => {
+    useMapEvents({
+      click(e) {
+        setPosition(e.latlng);
+      },
+    });
+
+    return position === null ? null : (
+      <Marker position={position}>
+      </Marker>
+    );
   };
 
   return (
@@ -161,6 +211,7 @@ const ReportWaste = () => {
             </div>
           </div>
         </div>
+<<<<<<< HEAD
         <div className="p-8 bg-white rounded-2xl shadow-lg max-w-3xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6 text-gray-800">Submit Data (Testing)</h2>
       <p className="text-gray-500 mb-4 text-lg">Total Reports Submitted: <span className="font-bold">{reportCount}</span></p>
@@ -245,9 +296,45 @@ const ReportWaste = () => {
 
         
        
+=======
+        <div className='flex flex-col  justify-center w-full items-center mt-[100px]'>
+          <h1 className='text-3xl text-black'>REPORT WASTE</h1>
+          <form onSubmit={handleReportSubmit} className="mb-4">
+            <h3 className="text-xl mb-2">Add Report</h3>
+            <input
+              type="number"
+              value={reportAmount}
+              onChange={(e) => setReportAmount(e.target.value)}
+              placeholder="Amount of waste collected (kg)"
+              className="border border-gray-300 rounded p-2 mb-2 w-full"
+              required
+            />
+            <input
+              type="text"
+              value={userid}
+              onChange={(e) => setUserid(e.target.value)}
+              placeholder="User ID"
+              className="border border-gray-300 rounded p-2 mb-4 w-full"
+              required
+            />
+            <div className="my-4 map-container w-full">
+              <MapContainer center={[12.9716, 77.5946]} zoom={13} style={{ height: '50vh', width: '100%' }}>
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <LocationMarker />
+              </MapContainer>
+            </div>
+            <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+              Submit Report
+            </Button>
+          </form>
+        </div>
+>>>>>>> f5bcefc3f2a3dc4bcd241827a03e46506a4d5f8d
       </div>
     </div>
   )
 }
 
-export default ReportWaste
+export default ReportWaste;

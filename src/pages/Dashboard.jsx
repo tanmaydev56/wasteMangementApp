@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Coins, Recycle, MapPin } from 'lucide-react';
 import { getRecentReports, getAllRewards, getWasteCollectionTasks, account, getRewardBalance } from "../../appwrite"; // Ensure correct path
+import Chart from '../components/charts';
 
 const Dashboard = () => {
   const [impactData, setImpactData] = useState({   
@@ -152,6 +153,7 @@ useEffect(() => {
           </div>
         </section>
       </div>
+      <Chart />
     </div>
   );
 };
