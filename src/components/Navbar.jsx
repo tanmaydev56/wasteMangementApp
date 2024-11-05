@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';

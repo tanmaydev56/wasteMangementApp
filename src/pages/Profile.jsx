@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { getUserInfo, updateUserInfo } from '../../appwrite'; // Adjust the path to appwrite.js
+import  { useEffect, useState } from 'react';
+import { fetchUserDocumentByEmail, getUserInfo, updateUserInfo } from '../../appwrite';
 import { PencilIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { FaArrowAltCircleLeft, FaCheckCircle } from 'react-icons/fa'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const ProfilePage = () => {
+  const navigate = useNavigate(); 
   const [userData, setUserData] = useState({
     name: '',
     email: '',
@@ -13,11 +16,13 @@ const ProfilePage = () => {
 
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const documentId = "67265b7ee5380710a5c1"; // Replace with the actual document ID
+        const email = "tanmaysharma763@gmail.com"; 
+        const documentId = await fetchUserDocumentByEmail(email);
         const data = await getUserInfo(documentId);
         setUserData(data);
         setLoading(false);
@@ -37,10 +42,15 @@ const ProfilePage = () => {
 
   const handleUpdate = async () => {
     try {
-      const userId = "67265b7ee5380710a5c1"; // Replace with the actual user ID
+      const userId = "67265b7ee5380710a5c1"; 
       await updateUserInfo(userId, userData);
-      alert("User info updated successfully!");
-      setIsEditing(false); // Exit editing mode
+      setShowSuccessMessage(true); 
+      setIsEditing(false); 
+
+ 
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 3000);
     } catch (error) {
       console.error("Error updating user info:", error);
       alert("Failed to update user info.");
@@ -50,12 +60,35 @@ const ProfilePage = () => {
   if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
   return (
+    <div className='h-screen w-full flex items-center justify-center bg-gray-100'>
+         {showSuccessMessage && ( 
+          <motion.div
+            initial={{ opacity: 0, translateY: -20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            exit={{ opacity: 0, translateY: -20 }}
+            transition={{ duration: 0.5 }}
+            className="absolute flex gap-2 top-6 bg-green-500  text-white p-4 rounded-lg shadow-lg"
+          >
+            <h1>Changes have been saved successfully!</h1>
+            <FaCheckCircle className="mt-[5.5px] text-white" />
+          </motion.div>
+        )}
     <motion.div
-      className="h-screen w-full flex items-center justify-center bg-gray-100"
+      className=""
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
     >
-      <div className="max-w-2xl w-full p-8 bg-white shadow-lg rounded-lg transition-all duration-300">
+       <button
+          onClick={() => navigate('/dashboard')}
+          className="absolute top-10 left-10 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300"
+        >
+          <div className='flex '>
+          Back to Dashboard
+          <FaArrowAltCircleLeft className="ml-3 mt-[5px] h-[18px] w-[18px]" />
+          </div>
+        </button>
+      <div className="max-w-2xl w-full p-8 bg-white shadow-lg rounded-lg transition-all duration-300 relative">
+       
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-green-600">Profile</h1>
           <button
@@ -76,11 +109,11 @@ const ProfilePage = () => {
           </div>
 
           <motion.div
-            key={isEditing} // Helps Framer Motion to recognize the changing state
+            key={isEditing}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: isEditing ? 1 : 0, height: isEditing ? 'auto' : 0 }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }} // Adjust the duration as needed
+            transition={{ duration: 0.3 }} 
           >
             {isEditing && (
               <>
@@ -135,8 +168,11 @@ const ProfilePage = () => {
             )}
           </motion.div>
         </div>
+
+     
       </div>
     </motion.div>
+    </div>
   );
 };
 

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { FaLeaf, FaSearch, FaBell, FaUser, FaArrowRight } from 'react-icons/fa';
+import  { useState } from 'react';
+import { FaLeaf, FaSearch, FaBell, FaUser } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
-import { useNavigate } from 'react-router-dom';
-import { Button} from "../components/ui/button"
+import { NavLink, useNavigate } from 'react-router-dom';
+
 import SideBar from '../components/SideBar';
-import { Leaf } from 'lucide-react';
+
 
 const News = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +68,8 @@ const News = () => {
             {isOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
                 <ul>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+                
+                  <NavLink to={'/profile'} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</NavLink>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
                   <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
                 </ul>

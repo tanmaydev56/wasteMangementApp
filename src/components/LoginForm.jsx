@@ -57,6 +57,8 @@ export function SignupFormDemo() {
     registerUser();
   };
 
+  
+
   const handleGoogleAuth = async () => {
     try {
       await account.createOAuth2Session(

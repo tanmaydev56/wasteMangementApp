@@ -6,7 +6,7 @@ import { account } from '../appwrite.js';
 
 const AppWrapper = () => {
   useEffect(() => {
-    // Example: Check if the user is logged in when the app loads
+   
     const checkUserSession = async () => {
       try {
         const user = await account.get();

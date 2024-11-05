@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Button} from "../components/ui/button"
 import SideBar from '../components/SideBar';
 
@@ -141,10 +141,7 @@ const ReportWaste = () => {
           {/* Right Section */}
           <div className="flex items-center space-x-4">
             <FaBell className="text-gray-500" />
-            <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
-              <FaLeaf className="text-green-500" />
-              <span className="text-sm font-semibold text-gray-800">0.00</span>
-            </div>
+         
             <div className="relative inline-block">
               <button onClick={toggleDropdown} className="text-gray-500 text-2xl">
                 <FaUser />
@@ -152,7 +149,7 @@ const ReportWaste = () => {
               {isOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
                   <ul>
-                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+                    <NavLink to={"/profile"} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</NavLink>
                     <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
                     <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
                   </ul>
@@ -237,7 +234,7 @@ const ReportWaste = () => {
               transition={{ duration: 0.5 }}
               className="absolute ml-[15%] flex gap-2 top-20 bg-green-500 text-white p-4 rounded-lg shadow-lg"
             >
-             <h1>Reward added successfully!</h1>
+             <h1>Report added successfully!</h1>
              <FaCheckCircle  className="mt-[5.5px] text-white" />
             </motion.div>
           )}

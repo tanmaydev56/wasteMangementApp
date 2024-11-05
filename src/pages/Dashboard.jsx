@@ -56,6 +56,7 @@ const Dashboard = () => {
     fetchImpactData();
     fetchBalance();
   }, []);
+  
 
   const toggleDropdown = () => setIsOpen(!isOpen);
   const toggleSidebar = () => setShowSidebar(!showSidebar);
@@ -88,10 +89,7 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center space-x-4">
           <FaBell className="text-gray-500" />
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
-            <FaLeaf className="text-green-500" />
-            <span className="text-sm font-semibold text-gray-800">{balance.toFixed(2)}</span>
-          </div>
+          
           <div className="relative inline-block">
             <button onClick={toggleDropdown} className="text-gray-500 text-2xl">
               <FaUser />

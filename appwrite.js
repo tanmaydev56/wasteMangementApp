@@ -6,11 +6,8 @@ const client = new Client()
   .setProject(import.meta.env.VITE_PUBLIC_PROJECT_ID); // Project ID from .env
 
 // Exporting instances for authentication and database access
-export const account = new Account(client);
+export const account = new Account(client); 
 export const databases = new Databases(client);
-
-
-
 
 // Database and collection IDs from .env or defined directly here
 const databaseId = import.meta.env.VITE_PUBLIC_DATABASE_ID;
@@ -19,12 +16,27 @@ const rewardsCollectionId = import.meta.env.VITE_PUBLIC_REWARDS_COLLECTION_ID;
 const tasksCollectionId = import.meta.env.VITE_PUBLIC_TASKS_COLLECTION_ID; 
 const usersCollectionId = import.meta.env.VITE_PUBLIC_USERINFO_COLLECTION_ID;
 
+// Function to fetch user document by email
+export async function fetchUserDocumentByEmail(email) {
+  try {
+    const response = await databases.listDocuments(databaseId, usersCollectionId, [
+      Query.equal("email", email) // Adjust "email" to your attribute name
+    ]);
 
-
-
+    if (response.total > 0) {
+      // Get the document ID from the first result
+      const documentId = response.documents[0].$id;
+      return documentId;
+    } else {
+      throw new Error("User document not found");
+    }
+  } catch (error) {
+    console.error("Error fetching user document by email:", error);
+    throw error;
+  }
+}
 
 // Function to handle user registration and store info in the database
-
 export async function registerUser(name, email, password, phoneNumber, bio) {
   try {
     // Create a user session
@@ -35,7 +47,7 @@ export async function registerUser(name, email, password, phoneNumber, bio) {
       password,
       phoneNumber,
       bio,
-  });
+    });
   
     // After user creation, store additional info in the Users collection
     const userInfo = {
@@ -59,6 +71,7 @@ export async function registerUser(name, email, password, phoneNumber, bio) {
     console.error("Error registering user:", error);
   }
 }
+
 // Function to handle user login and store user info if not exists
 export async function handleLogin(email, password, name, phoneNumber, bio) {
   try {
@@ -82,6 +95,7 @@ export async function handleLogin(email, password, name, phoneNumber, bio) {
     console.error("Error during login:", error);
   }
 }
+
 // Function to fetch user info
 export async function getUserInfo(documentid) {
   try {
@@ -89,17 +103,15 @@ export async function getUserInfo(documentid) {
     return response; 
   } catch (error) {
     console.error("Error fetching user info:", error);
-    throw error;  // Re-throw the error to handle it further up if needed
+    throw error; 
   }
 }
 
 // Function to update user info
 export const updateUserInfo = async (userid, updatedData) => {
   try {
-    // Define valid attributes according to your Appwrite collection schema
     const { name, email, phoneNumber, bio } = updatedData;
 
-    // Ensure to only send the attributes that are valid in your collection schema
     const dataToUpdate = {
       name,
       email,
@@ -163,7 +175,7 @@ export async function getWasteCollectionTasks(limit = 100) {
 }
 
 export async function addReport(reportData) {
-  const { amount, userid, title, description } = reportData; // Destructure fields from the reportData object
+  const { amount, userid, title, description } = reportData;
   
   try {
     const document = await databases.createDocument(
@@ -184,7 +196,6 @@ export async function addReport(reportData) {
   }
 }
 
-
 export async function getReportCount() {
   try {
     const response = await databases.listDocuments(databaseId, reportsCollectionId);
@@ -194,8 +205,9 @@ export async function getReportCount() {
     throw error;
   }
 }
+
 export async function addReward(rewardData) {
-  const { amount, rewardid, title, description } = rewardData; // Destructure fields from the rewardData object
+  const { amount, rewardid, title, description } = rewardData;
 
   try {
     const document = await databases.createDocument(
@@ -215,7 +227,6 @@ export async function addReward(rewardData) {
     console.error("Error adding reward:", error);
   }
 }
-
 
 export async function getRewardBalance(userid) {
   try {
