@@ -57,6 +57,17 @@ export function SignupFormDemo() {
     registerUser();
   };
 
+  const handleFacebookAuth = async () => {
+    try {
+      await account.createOAuth2Session(
+        'facebook',
+        import.meta.env.VITE_PUBLIC_SUCCESS_REDIRECT_URL,
+        import.meta.env.VITE_PUBLIC_FAILURE_REDIRECT_URL
+      );
+    } catch (error) {
+      setError(error.response?.message || error.message);
+    }
+  };
   
 
   const handleGoogleAuth = async () => {
@@ -151,30 +162,31 @@ export function SignupFormDemo() {
 
         <div className="my-4 border-b border-gray-300 w-full" />
 
-        <div className="flex lg:flex-row flex-col justify-center gap-3">
-          <button
-            className="flex items-center space-x-2 px-4 lg:w-[200px] w-auto bg-gray-100 text-gray-700 rounded-full h-10 font-medium shadow-md"
-            type="button"
-            onClick={handleGoogleAuth} 
-          >
-            <IconBrandGoogle />
-            <span className="text-gray-700 text-sm">Google</span>
-          </button>
+        <div className="flex lg:flex-row flex-col justify-around gap-3">
+      <button
+        className="flex items-center  space-x-2 px-4 lg:w-[200px] w-auto bg-gray-100 text-gray-700 rounded-full h-10 font-medium shadow-md"
+        type="button"
+        onClick={handleGoogleAuth}
+      >
+        <IconBrandGoogle />
+        <span className="text-gray-700 text-sm">Google</span>
+      </button>
 
-          {[ 
-            { icon: <IconBrandGithub />, label: "GitHub" },
-            { icon: <IconBrandFacebook />, label: "Facebook" },
-          ].map(({ icon, label }, index) => (
-            <button
-              key={index}
-              className="flex items-center space-x-2 px-4 lg:w-[200px] w-auto bg-gray-100 text-gray-700 rounded-full h-10 font-medium shadow-md"
-              type="button"
-            >
-              {icon}
-              <span className="text-gray-700 text-sm">{label}</span>
-            </button>
-          ))}
-        </div>
+      {[ 
+       
+        { icon: <IconBrandFacebook />, label: "Facebook", authFunction: handleFacebookAuth },
+      ].map(({ icon, label, authFunction }, index) => (
+        <button
+          key={index}
+          className="flex items-center space-x-2 px-4 lg:w-[200px] w-auto bg-gray-100 text-gray-700 rounded-full h-10 font-medium shadow-md"
+          type="button"
+          onClick={authFunction} // Add onClick for authentication
+        >
+          {icon}
+          <span className="text-gray-700 text-sm">{label}</span>
+        </button>
+      ))}
+    </div>
       </form>
     </div>
   );
