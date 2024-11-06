@@ -21,7 +21,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const email = "sebhat1504@outlook.com"; 
+        const email = "tanmaysharma763@gmail.com"; 
         const documentId = await fetchUserDocumentByEmail(email);
         const data = await getUserInfo(documentId);
         setUserData(data);
@@ -42,7 +42,7 @@ const ProfilePage = () => {
 
   const handleUpdate = async () => {
     try {
-      const userId = "67265b7ee5380710a5c1"; 
+      const userId = "672b18a897d0fc159096"; 
       await updateUserInfo(userId, userData);
       setShowSuccessMessage(true); 
       setIsEditing(false); 
