@@ -8,6 +8,7 @@ import {
   IconBrandGoogle,
   IconBrandFacebook
 } from "@tabler/icons-react";
+import { useNavigate } from 'react-router-dom';
 
 // Database and collection IDs from .env or defined directly here
 const databaseId = import.meta.env.VITE_PUBLIC_DATABASE_ID;
@@ -22,6 +23,8 @@ export function SignupFormDemo() {
   const [error, setError] = useState('');
 
   // Function to register user and store additional info in the database
+   const navigate = useNavigate();
+
   const registerUser = async () => {
     try {
       // Create a new user with the provided details
@@ -46,7 +49,7 @@ export function SignupFormDemo() {
       );
 
       // Redirect to the dashboard after successful registration
-      window.location.href = '/dashboard'; 
+      navigate('/dashboard'); 
     } catch (error) {
       setError(error.response?.message || error.message);
     }
