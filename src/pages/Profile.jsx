@@ -21,7 +21,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const email = "tanmaysharma763@gmail.com"; 
+        const email = "sebhat1504@outlook.com"; 
         const documentId = await fetchUserDocumentByEmail(email);
         const data = await getUserInfo(documentId);
         setUserData(data);
