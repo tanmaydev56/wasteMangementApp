@@ -57,7 +57,8 @@ export async function registerUser(name, email, password, phoneNumber, bio) {
       phoneNumber: phoneNumber || "", // Optional field
       bio: bio || "" // Optional field
     };
-
+   
+    
     // Store user info in the Users collection
     await databases.createDocument(
       databaseId,
@@ -71,6 +72,77 @@ export async function registerUser(name, email, password, phoneNumber, bio) {
     console.error("Error registering user:", error);
   }
 }
+export const sendEmailNotification = async (to, subject, textContent, htmlContent) => {
+  const sendgridApiKey = import.meta.env.VITE_SENDGRID_API_KEY; // Ensure this is set in your .env file
+
+  const emailData = {
+    personalizations: [
+      {
+        to: [{ email: to }],
+        subject: subject
+      }
+    ],
+    from: { email: 'tanmaysharma763@gmail.com' }, // Sender email address
+    content: [
+      { type: 'text/plain', value: textContent },
+      { type: 'text/html', value: htmlContent }
+    ]
+  };
+
+  try {
+    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sendgridApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(emailData)
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.json();
+      console.error("Error sending email:", errorDetails);
+      throw new Error("Failed to send email");
+    }
+
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.error("Error in sendEmailNotification:", error);
+    throw error;
+  }
+};
+// export const addReport = async (reportData) => {
+//   const { amount, userid, title, description } = reportData;
+  
+//   try {
+//     const document = await databases.createDocument(
+//       databaseId,
+//       reportsCollectionId,
+//       "unique()",
+//       { 
+//         amount,
+//         userid,
+//         title,
+//         description,
+//         createdat: new Date().toISOString(),
+//       }
+//     );
+//     console.log("Report added:", document);
+
+//     // Send email notification after adding report
+//     const subject = "New Waste Report Submitted";
+//     const textContent = `A new waste report has been submitted by user ID ${userid}.`;
+//     const htmlContent = `<strong>Title:</strong> ${title}<br>
+//                          <strong>Description:</strong> ${description}<br>
+//                          <strong>Amount of Waste:</strong> ${amount} kg`;
+
+//     await sendEmailNotification("recipient@example.com", subject, textContent, htmlContent);
+
+//   } catch (error) {
+//     console.error("Error adding report:", error);
+//   }
+// };
+
 
 // Function to handle user login and store user info if not exists
 export async function handleLogin(email, password, name, phoneNumber, bio) {
@@ -195,6 +267,7 @@ export async function addReport(reportData) {
     console.error("Error adding report:", error);
   }
 }
+
 
 export async function getReportCount() {
   try {

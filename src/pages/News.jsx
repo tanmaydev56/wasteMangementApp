@@ -57,10 +57,7 @@ const News = () => {
         {/* Right Section */}
         <div className="flex items-center space-x-4">
           <FaBell className="text-gray-500" />
-          <div className="flex items-center space-x-1 bg-gray-100 rounded-full px-2 py-1">
-            <FaLeaf className="text-green-500" />
-            <span className="text-sm font-semibold text-gray-800">0.00</span>
-          </div>
+        
           <div className="relative inline-block">
             <button onClick={toggleDropdown} className="text-gray-500 text-2xl">
               <FaUser />
