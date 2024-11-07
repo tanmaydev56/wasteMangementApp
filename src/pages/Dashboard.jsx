@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [balance, setBalance] = useState(0);
 
   const navigate = useNavigate();
-  
+
 
   useEffect(() => {
     const fetchImpactData = async () => {
@@ -48,6 +48,7 @@ const Dashboard = () => {
         const userEmail = localStorage.getItem('userEmail');
         if (userEmail) {
           const userBalance = await getRewardBalance(userEmail); 
+        console.log(balance);
           setBalance(userBalance);
         }
       } catch (error) {
@@ -57,7 +58,7 @@ const Dashboard = () => {
 
     fetchImpactData();
     fetchBalance();
-  }, []);
+  }, [balance]);
   
 
   const toggleDropdown = () => setIsOpen(!isOpen);
