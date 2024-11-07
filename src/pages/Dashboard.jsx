@@ -21,7 +21,9 @@ const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [balance, setBalance] = useState(0);
+
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchImpactData = async () => {

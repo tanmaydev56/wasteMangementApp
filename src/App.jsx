@@ -1,5 +1,4 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import CollectWaste from './components/CollectWaste';
@@ -7,31 +6,49 @@ import ReportWaste from './pages/ReportWaste';
 import News from './pages/News';
 import Rewards from './pages/Rewards';
 import NotFound from './pages/NotFound';
-import Profile from './pages/Profile'; // Create this component
+import Profile from './pages/Profile';
 
-
-
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <LoginPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/collectwaste",
+    element: <CollectWaste />,
+  },
+  {
+    path: "/report-waste",
+    element: <ReportWaste />,
+  },
+  {
+    path: "/news",
+    element: <News />,
+  },
+  {
+    path: "/rewards",
+    element: <Rewards />,
+  },
+  {
+    path: "/profile",
+    element: <Profile userId={localStorage.getItem('userToken')} />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  }
+]);
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} /> {/* Default route */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/collectwaste" element={<CollectWaste />} />
-       
-     
-        <Route path="/report-waste" element={<ReportWaste />} />
-        <Route path="/news" element={<News />} />
-        <Route path="/rewards" element={<Rewards />} />
-        <Route path="/profile" element={<Profile  
-          userId={localStorage.getItem('userToken')}/>} />
-        <Route path="*" element={<NotFound />} /> {/* Catch-all for 404 */}
-
-      </Routes>
-    </Router>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
