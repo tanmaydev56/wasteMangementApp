@@ -4,7 +4,7 @@ import { MdOutlineMenu } from "react-icons/md";
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import SideBar from '../components/SideBar';
-import sgMail from '@sendgrid/mail';
+
 import { motion } from 'framer-motion';
 import { getReportCount, addReport } from '../../appwrite';  // Import addReport here
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -21,8 +21,7 @@ const ReportWaste = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const navigate = useNavigate();
 
-  // Set up SendGrid API Key
-  sgMail.setApiKey(import.meta.env.VITE_SENDGRID_API_KEY);
+ 
 
   useEffect(() => {
     const fetchReportData = async () => {
