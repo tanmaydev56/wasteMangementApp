@@ -72,46 +72,8 @@ export async function registerUser(name, email, password, phoneNumber, bio) {
     console.error("Error registering user:", error);
   }
 }
-export const sendEmailNotification = async (to, subject, textContent, htmlContent) => {
-  const sendgridApiKey = import.meta.env.VITE_SENDGRID_API_KEY; // Ensure this is set in your .env file
 
-  const emailData = {
-    personalizations: [
-      {
-        to: [{ email: to }],
-        subject: subject
-      }
-    ],
-    from: { email: 'tanmaysharma763@gmail.com' }, // Sender email address
-    content: [
-      { type: 'text/plain', value: textContent },
-      { type: 'text/html', value: htmlContent }
-    ]
-  };
 
-  try {
-    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${sendgridApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(emailData)
-    });
-
-    if (!response.ok) {
-      const errorDetails = await response.json();
-      console.error("Error sending email:", errorDetails);
-      throw new Error("Failed to send email");
-    }
-
-    console.log("Email sent successfully");
-  } catch (error) {
-    console.error("Error in sendEmailNotification:", error);
-    throw error;
-  }
-};
-// export const addReport = async (reportData) => {
 //   const { amount, userid, title, description } = reportData;
   
 //   try {
