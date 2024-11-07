@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import SideBar from '../components/SideBar';
 
 import { motion } from 'framer-motion';
-import { getReportCount, addReport } from '../../appwrite';  // Import addReport here
+import { getReportCount, addReport } from '../../appwrite';  
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 const ReportWaste = () => {

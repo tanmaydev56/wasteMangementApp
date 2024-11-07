@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { cn } from "../../lib/uitls";
 import { account, databases } from '../../appwrite'; // Import your Appwrite client and database access
 import {
-  IconBrandGithub,
+ 
   IconBrandGoogle,
   IconBrandFacebook
 } from "@tabler/icons-react";
@@ -27,28 +27,28 @@ export function SignupFormDemo() {
 
   const registerUser = async () => {
     try {
-      // Create a new user with the provided details
+     
       const user = await account.create('unique()', email, password, name);
       console.log("User created:", user);
       
-      // Store additional user info in the Users collection
+     
       const userInfo = {
         name: name,
         email: email,
         password: password,
-        phoneNumber: phoneNumber || "", // Optional field
-        bio: bio || "" // Optional field
+        phoneNumber: phoneNumber || "", 
+        bio: bio || "" 
       };
 
-      // Store user info in the Users collection
+    
       await databases.createDocument(
         databaseId,
         usersCollectionId,
-        user.$id, // Use the user ID as the document ID
+        user.$id, 
         userInfo
       );
 
-      // Redirect to the dashboard after successful registration
+     
       navigate('/dashboard'); 
     } catch (error) {
       setError(error.response?.message || error.message);
