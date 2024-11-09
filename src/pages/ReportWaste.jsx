@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import SideBar from '../components/SideBar';
-
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { motion } from 'framer-motion';
 import { getReportCount, addReport } from '../../appwrite';  
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import 'leaflet/dist/leaflet.css';
 
 const ReportWaste = () => {
   const [reportAmount, setReportAmount] = useState('');
@@ -19,9 +20,8 @@ const ReportWaste = () => {
   const [reportCount, setReportCount] = useState(0);
   const [data, setData] = useState([]);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [position, setPosition] = useState(null);
   const navigate = useNavigate();
-
- 
 
   useEffect(() => {
     const fetchReportData = async () => {
@@ -41,32 +41,52 @@ const ReportWaste = () => {
     const reportAmountInt = parseInt(reportAmount, 10);
 
     if (!isNaN(reportAmountInt) && userid && title && description) {
-      try {
-        // Prepare the report data
-        const reportData = { title, description, reportAmount: reportAmountInt, userid };
-        
-        // Call the addReport function
-        await addReport(reportData);
+      if (position) {
+        try {
+          // Prepare the report data
+          const reportData = { title, description, reportAmount: reportAmountInt, userid, position };
+          
+          // Call the addReport function
+          await addReport(reportData);
 
-        setReportAmount('');
-        setUserid('');
-        setTitle('');
-        setDescription('');
+          setReportAmount('');
+          setUserid('');
+          setTitle('');
+          setDescription('');
+          setPosition(null);
 
-        const count = await getReportCount();
-        setReportCount(count);
-        setData([{ name: 'Reports', value: count }]);
+          const count = await getReportCount();
+          setReportCount(count);
+          setData([{ name: 'Reports', value: count }]);
 
-        setShowSuccessMessage(true);
-        setTimeout(() => setShowSuccessMessage(false), 3000);
+          setShowSuccessMessage(true);
+          setTimeout(() => setShowSuccessMessage(false), 3000);
 
-      } catch (error) {
-        console.error("Error submitting report:", error);
+        } catch (error) {
+          console.error("Error submitting report:", error);
+        }
+      } else {
+        alert('Please select a location on the map.');
       }
     } else {
       console.error("All fields must be filled out and report amount must be a valid integer.");
     }
   };
+
+  const LocationMarker = () => {
+    useMapEvents({
+      click(e) {
+        setPosition(e.latlng);
+      },
+    });
+
+    return position === null ? null : (
+      <Marker position={position}>
+      </Marker>
+    );
+  };
+
+  const memoizedLocationMarker = useMemo(() => <LocationMarker />, [position]);
 
   const COLORS = ['#34D399', '#3B82F6', '#F87171'];
 
@@ -78,9 +98,8 @@ const ReportWaste = () => {
   };
 
   return (
-    <div className="h-screen w-full flex">
+    <div className="h-screen w-full">
       <SideBar isVisible={!showSidebar} />
-
       <div className={`flex-grow flex flex-col ${showSidebar ? 'ml-0' : 'ml-0'} transition-all duration-300`}>
         <div className="flex items-center justify-between h-20 px-4 bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
           <div className="flex items-center space-x-4">
@@ -188,7 +207,6 @@ const ReportWaste = () => {
               Submit Report
             </Button>
           </form>
-
           {showSuccessMessage && (
             <motion.div
               initial={{ opacity: 0, translateY: -20 }}
@@ -203,6 +221,16 @@ const ReportWaste = () => {
           )}
         </div>
       </div>
+      <div style={{ height: '500px' }} className="my-4 map-container w-full relative left-[300px]">
+        <MapContainer center={[12.9716, 77.5946]} zoom={13} style={{ height: '436px', width: '65%' }}>
+          <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {memoizedLocationMarker}
+        </MapContainer>
+      </div>
+
     </div>
   );
 };
