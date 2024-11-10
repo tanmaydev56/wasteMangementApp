@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle } from 'react-icons/fa';
+import { useState,useRef} from 'react';
+import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle,FaInfoCircle  } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
 import { addReward } from '../../appwrite';
 import { Button } from "../components/ui/button";
 import SideBar from './SideBar';
 import { motion } from 'framer-motion'; 
 import { NavLink, useNavigate } from 'react-router-dom';
+import Webcam from "react-webcam";
+import axios from 'axios';
 
 const CollectWaste = () => {
   const [rewardAmount, setRewardAmount] = useState('');
@@ -15,6 +17,12 @@ const CollectWaste = () => {
   const [description, setDescription] = useState('');
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [imageSrc, setImageSrc] = useState(null);
+  const webcamRef = useRef(null);
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [file, setFile] = useState(null);
+  const [prediction, setPrediction] = useState(null);
   const navigate = useNavigate();
 
   const handleRewardSubmit = async (e) => {
@@ -49,7 +57,54 @@ const CollectWaste = () => {
     localStorage.removeItem('userToken');
     navigate('/login');
   };
+  const toggleCamera = () => {
+    setCameraEnabled(!cameraEnabled);
+    setImageSrc(null); // Reset image source when toggling
+  };
 
+  const captureImage = () => {
+    const capturedImage = webcamRef.current.getScreenshot();
+    setImageSrc(capturedImage);
+    setCameraEnabled(false); 
+  };
+  
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    setFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageSrc(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!file && !imageSrc) return;
+
+    const formData = new FormData();
+    if (file) {
+      formData.append('file', file);
+    } else if (imageSrc) {
+      const blob = await fetch(imageSrc).then(res => res.blob());
+      formData.append('file', blob, "captured_image.jpg");
+    }
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/predict', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setPrediction(response.data);
+    } catch (error) {
+      console.error("Error during prediction", error);
+    }
+  };
+  const [isVisible, setIsVisible] = useState(false);
+
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible);
+  };
   return (
     <div className="h-screen w-full flex">
       {/* Sidebar */}
@@ -103,7 +158,7 @@ const CollectWaste = () => {
 
         <div className='flex justify-center w-full flex-col items-center mt-[100px]'>
           <h1 className='text-3xl text-black'>COLLECT WASTE</h1>
-
+              <div className='flex space-between'>
           {/* Reward Submission Form */}
           <form onSubmit={handleRewardSubmit} className="mb-6">
             <h3 className="text-xl mb-2">Add Reward<span className='absolute mt-[1px] ml-[5px] text-green-600 font-bold lg:text-[15px] text-[12px] '>(All the rewards are added in the reward page)</span></h3>
@@ -139,11 +194,100 @@ const CollectWaste = () => {
               className="border border-gray-300 rounded p-2 mb-4 w-full"
               required
             />
-            <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+            {/* collect waste model */}
+            <div className='flex flex-col justify-center lg:mt-[50px] mt-[50px] lg:mb-[50px] mb-[50px]'>
+            <button onClick={() => setDropdownVisible(!dropdownVisible)} className="flex place-self-center bg-green-600 hover:bg-green-700 text-white text-lg py-3 px-8 rounded-full font-medium transition-all duration-300 ease-in-out transform hover:scale-105">
+              {dropdownVisible ? "Close Options" : "Open Options"}
+            </button>
+
+            {dropdownVisible && (
+              <div className='flex lg:mt-[10px] mt-[20px] justify-center gap-[50px]'>
+                <button onClick={toggleCamera} className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-[30px] group bg-gradient-to-br from-green-400 to-green-800 hover:text-white dark:text-white">
+                  <span className="relative px-5 py-2.5 bg-white rounded-[30px] text-green-700 group-hover:bg-opacity-0 group-hover:text-white">
+                    {cameraEnabled ? "Disable Camera" : "Enable Camera"}
+                  </span>
+                </button>
+
+                <label className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-[30px] group bg-gradient-to-br from-green-400 to-green-800 hover:text-white dark:text-white">
+                  <span className="relative px-5 py-2.5 bg-white rounded-[30px] text-green-700 group-hover:bg-opacity-0 group-hover:text-white">
+                    Upload Image
+                  </span>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                </label>
+              </div>
+            )}
+
+            {/* Camera view */}
+            {cameraEnabled && (
+              <div className='flex flex-col gap-[20px] lg:mt-[15px] mt-[15px]'>
+                <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{ width: "100%", maxWidth: "400px" }} />
+                <button onClick={captureImage} className="relative self-center inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-[30px] group bg-gradient-to-br from-green-400 to-green-800 hover:text-white dark:text-white">
+                  <span className="relative px-5 py-2.5 bg-white rounded-[30px] text-green-700 group-hover:bg-opacity-0 group-hover:text-white">
+                    Capture Image
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* Image preview and prediction */}
+            {imageSrc && (
+              <div className='self-center lg:mt-[20px] mt-[20px]'>
+                <h3 className='text-[24px]'>Preview:</h3>
+                <div style={{background: 'linear-gradient(to bottom right, #38bdf8, #22c55e)',display:"block"}} className='rounded-[20px]'>
+                
+                <img src={imageSrc} alt="Preview" style={{background: 'linear-gradient(to bottom right, #38bdf8, #22c55e)', width: "100%", maxWidth: "400px" }} className='border-[2px] border-[#22c55e] rounded-[20px] group border-gradient-to-br from-green-400 to-green-800 '/>
+                </div>
+                <div className='flex lg:gap-[30px] gap-[20px]'>
+                <button onClick={() => setImageSrc(null)} style={{ padding: "10px 20px", marginTop: "10px", background: "red", color: "white" }} className='rounded-[25px]'>
+                  Delete Image
+                </button>
+                <button onClick={handleSubmit} style={{ padding: "10px 20px", marginTop: "10px", background: "green", color: "white" }} className='rounded-[25px]'>
+                  Get Prediction
+                </button>
+                </div>
+                {prediction && (
+                  <div>
+                    <h3>Prediction Result:</h3>
+                    <p>Class: {prediction.prediction}</p>
+                    <p>Category: {prediction.category}</p>
+                    <p>Confidence: {(prediction.confidence * 100).toFixed(2)}%</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+       
+          <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
               Submit Reward
             </Button>
           </form>
+          <div className="relative inline-block">
+      <button
+        onClick={toggleVisibility}
+        className="text-green-700 text-2xl focus:outline-none"
+        aria-label="Toggle instruction box"
+      >
+        <FaInfoCircle />
+      </button>
 
+      {isVisible && (
+        <div
+          className="absolute top-8 left-0 w-60 p-3 bg-green-50 text-gray-800 border border-green-700 rounded-lg shadow-lg z-10"
+        >
+          <p className="text-sm">
+            This is an instruction box with helpful information for the user. Click the info icon to hide or show this box.
+            <br/><span className='text-[18px] font-semibold'>Reward Points System:</span><br/>
+            Plastic-400<br/>
+            Cardboard-200<br/>
+            Compost-200<br/>
+            Metal-300<br/>
+            Paper-100 <br/>
+            Trash-50
+          </p>
+        </div>
+      )}
+      </div>
+    </div>
           {/* Success Message Popup */}
           {showSuccessMessage && (
             <motion.div

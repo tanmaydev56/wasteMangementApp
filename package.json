@@ -20,6 +20,7 @@
     "@sendgrid/mail": "^8.1.4",
     "@tabler/icons-react": "^3.21.0",
     "appwrite": "^16.0.2",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.11",
