@@ -1,14 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
-import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle } from 'react-icons/fa';
+import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle  } from 'react-icons/fa';
+import { RxCross1 } from "react-icons/rx";
 import { MdOutlineMenu } from "react-icons/md";
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Button } from "../components/ui/button";
+
 import SideBar from '../components/SideBar';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { motion } from 'framer-motion';
-import { getReportCount, addReport } from '../../appwrite';  
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { getReportCount, addReport } from '../../appwrite';
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import 'leaflet/dist/leaflet.css';
+import { motion } from 'framer-motion';
 
 const ReportWaste = () => {
   const [reportAmount, setReportAmount] = useState('');
@@ -19,7 +20,9 @@ const ReportWaste = () => {
   const [description, setDescription] = useState('');
   const [reportCount, setReportCount] = useState(0);
   const [data, setData] = useState([]);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const [showFailureModal, setShowFailureModal] = useState(false); // Failure modal state
   const [position, setPosition] = useState(null);
   const navigate = useNavigate();
 
@@ -43,10 +46,7 @@ const ReportWaste = () => {
     if (!isNaN(reportAmountInt) && userid && title && description) {
       if (position) {
         try {
-          // Prepare the report data
           const reportData = { title, description, reportAmount: reportAmountInt, userid, position };
-          
-          // Call the addReport function
           await addReport(reportData);
 
           setReportAmount('');
@@ -59,14 +59,14 @@ const ReportWaste = () => {
           setReportCount(count);
           setData([{ name: 'Reports', value: count }]);
 
-          setShowSuccessMessage(true);
-          setTimeout(() => setShowSuccessMessage(false), 3000);
-
+          setShowSuccessModal(true);
+          setTimeout(() => setShowSuccessModal(false), 3000);
         } catch (error) {
           console.error("Error submitting report:", error);
         }
       } else {
-        alert('Please select a location on the map.');
+        setShowFailureModal(true); // Show failure modal if no location
+        setTimeout(() => setShowFailureModal(false), 3000); // Hide after 5 seconds
       }
     } else {
       console.error("All fields must be filled out and report amount must be a valid integer.");
@@ -82,14 +82,13 @@ const ReportWaste = () => {
 
     return position === null ? null : (
       <Marker position={position}>
+        <Popup>Location: {position.lat.toFixed(4)}, {position.lng.toFixed(4)}</Popup>
       </Marker>
     );
   };
 
   const memoizedLocationMarker = useMemo(() => <LocationMarker />, [position]);
-
   const COLORS = ['#34D399', '#3B82F6', '#F87171'];
-
   const toggleDropdown = () => setIsOpen(!isOpen);
   const toggleSidebar = () => setShowSidebar(!showSidebar);
   const handleLogout = () => {
@@ -203,34 +202,53 @@ const ReportWaste = () => {
               className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
             />
-            <Button type="submit" className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg">
-              Submit Report
-            </Button>
+
+            {/* Heading for Map */}
+            <h3 className="text-lg font-medium text-gray-700">Select Location on the Map</h3>
+            <div className="w-full h-64 rounded-lg border">
+              <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: "100%", width: "100%" }}>
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {memoizedLocationMarker}
+              </MapContainer>
+            </div>
+
+            <button type="submit" className="w-full bg-green-500 text-white py-3 rounded-lg mt-6 hover:bg-green-600">Submit</button>
           </form>
-          {showSuccessMessage && (
+        </div>
+
+        {/* Success Modal */}
+        {showSuccessModal && (
             <motion.div
               initial={{ opacity: 0, translateY: -20 }}
               animate={{ opacity: 1, translateY: 0 }}
               exit={{ opacity: 0, translateY: -20 }}
               transition={{ duration: 0.5 }}
-              className="absolute ml-[15%] flex gap-2 top-20 bg-green-500 text-white p-4 rounded-lg shadow-lg"
+              className="absolute ml-[15%] flex gap-2  top-20 bg-green-500 text-white p-4 rounded-lg shadow-lg"
             >
               <h1>Report added successfully!</h1>
               <FaCheckCircle className="mt-[5.5px] text-white" />
             </motion.div>
           )}
-        </div>
-      </div>
-      <div style={{ height: '500px' }} className="my-4 map-container w-full relative left-[300px]">
-        <MapContainer center={[12.9716, 77.5946]} zoom={13} style={{ height: '436px', width: '65%' }}>
-          <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          {memoizedLocationMarker}
-        </MapContainer>
-      </div>
 
+        {/* Failure Modal */}
+        {showFailureModal && (
+          <motion.div
+            className="absolute ml-[15%] flex gap-2 top-20 bg-red-500 text-white p-4 rounded-lg shadow-lg"
+            initial={{ opacity: 0,translateY: -20 }}
+            animate={{ opacity: 1,translateY: 0 }}
+            exit={{ opacity: 0, translateY: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            
+              <h3 className="text-white font-[400] text-xl">Error!,Please select a location before submitting your report.</h3>
+              <RxCross1  className="mt-[5.5px] text-white" />
+           
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };
