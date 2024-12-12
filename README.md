@@ -32,7 +32,7 @@ APIs: Custom RESTful APIs
 Clone the repository:
 
 
-git clone https://github.com/yourusername/greenfuture.git  
+git clone [ https://github.com/yourusername/greenfuture.git ](https://github.com/tanmaydev56/wasteMangementApp.git) 
 cd greenfuture  
 Install dependencies:
 
