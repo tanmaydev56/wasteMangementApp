@@ -1,5 +1,6 @@
 
 import { FaHome, FaMapMarkerAlt, FaTrashAlt, FaGift, FaCog, FaNewspaper } from 'react-icons/fa';
+import { MdBugReport } from 'react-icons/md';
 
 import { NavLink } from 'react-router-dom';
 
@@ -41,8 +42,8 @@ const SideBar = ({ isVisible }) => {
             }`
           }
         >
-          <FaTrashAlt className="mr-2" />
-          <span>Collect Waste</span>
+          <MdBugReport className="mr-2" />
+          <span>Submitted Reports</span>
         </NavLink>
         <NavLink
           to="/rewards"

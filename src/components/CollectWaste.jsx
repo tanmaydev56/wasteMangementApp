@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import SideBar from './SideBar';
 import { motion } from 'framer-motion'; 
 import { NavLink, useNavigate } from 'react-router-dom';
-import Webcam from "react-webcam";
+
 import axios from 'axios';
 
 const CollectWaste = () => {

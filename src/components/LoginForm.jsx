@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react"; // Import useState to manage form state
+import { useEffect, useState } from "react"; // Import useState to manage form state
 import { Input } from "./ui/input";
 import { cn } from "../../lib/uitls";
 import { account, databases } from '../../appwrite'; // Import your Appwrite client and database access
@@ -22,8 +22,10 @@ export function SignupFormDemo() {
   const [bio, setBio] = useState('');
   const [error, setError] = useState('');
 
+
   // Function to register user and store additional info in the database
    const navigate = useNavigate();
+   
 
   const registerUser = async () => {
     try {
@@ -54,10 +56,29 @@ export function SignupFormDemo() {
       setError(error.response?.message || error.message);
     }
   };
+  useEffect(() => {
+    const checkLoggedInUser = async () => {
+      try {
+        const currentUser = await account.get();
+        
+        if (currentUser) {
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.log("No user logged in", error);
+      }
+    };
+  
+    checkLoggedInUser();
+  }, [
+    navigate,
+  ]);
 
   const handleSubmit = (e) => {
     e.preventDefault(); 
     registerUser();
+    // if the userIs registered the login page will not come 
+
   };
 
   const handleFacebookAuth = async () => {

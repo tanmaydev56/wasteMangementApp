@@ -12,9 +12,7 @@ const News = () => {
     const navigate = useNavigate();
     const apiKey = import.meta.env.VITE_APP_NEWS_API_KEY;
 
-    useEffect(() => {
-        fetchArticles("waste disposal OR recycling OR waste management");
-    }, []);
+    
 
     const fetchArticles = (query) => {
       fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
@@ -31,7 +29,13 @@ const News = () => {
             })
             .catch(error => console.error('Error:', error));
     };
-
+    useEffect(() => {
+        fetchArticles("waste disposal OR recycling OR waste management");
+    }, [
+        
+        apiKey
+        ]);
+    
     const toggleDropdown = () => setIsOpen(!isOpen);
     const toggleSidebar = () => setShowSidebar(!showSidebar);
     const handleLogout = () => {
