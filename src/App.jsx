@@ -7,6 +7,7 @@ import News from './pages/News';
 import Rewards from './pages/Rewards';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
+import CollectPage from './pages/Temp';
 
 const router = createBrowserRouter([
   {
@@ -42,9 +43,14 @@ const router = createBrowserRouter([
     element: <Profile userId={localStorage.getItem('userToken')} />,
   },
   {
+    path:"/modelGemini",
+    element:<CollectPage/>
+  },
+  {
     path: "*",
     element: <NotFound />,
-  }
+  },
+  
 ]);
 
 function App() {

@@ -1,7 +1,7 @@
-import { useState,useRef} from 'react';
+import { useState,useRef,useEffect} from 'react';
 import { FaLeaf, FaSearch, FaBell, FaUser, FaCheckCircle,FaInfoCircle  } from 'react-icons/fa';
 import { MdOutlineMenu } from "react-icons/md";
-import { addReward } from '../../appwrite';
+import { addReward, getSubmitedReports } from '../../appwrite';
 import { Button } from "../components/ui/button";
 import SideBar from './SideBar';
 import { motion } from 'framer-motion'; 
@@ -24,6 +24,8 @@ const CollectWaste = () => {
   const [file, setFile] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const navigate = useNavigate();
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleRewardSubmit = async (e) => {
     e.preventDefault();
@@ -105,6 +107,22 @@ const CollectWaste = () => {
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await getSubmitedReports();
+        //  Fetch reports from the backend
+        
+        setReports(data);
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
   return (
     <div className="h-screen w-full flex">
       {/* Sidebar */}
@@ -156,152 +174,43 @@ const CollectWaste = () => {
           </div>
         </div>
 
-        <div className='flex justify-center w-full flex-col items-center mt-[100px]'>
-          <h1 className='text-3xl text-black'>COLLECT WASTE</h1>
-              <div className='flex space-between'>
-          {/* Reward Submission Form */}
-          <form onSubmit={handleRewardSubmit} className="mb-6">
-            <h3 className="text-xl mb-2">Add Reward<span className='absolute mt-[1px] ml-[5px] text-green-600 font-bold lg:text-[15px] text-[12px] '>(All the rewards are added in the reward page)</span></h3>
-            <input
-              type="number"
-              value={rewardAmount}
-              onChange={(e) => setRewardAmount(e.target.value)}
-              placeholder="Amount of tokens earned"
-              className="border border-gray-300 rounded p-2 mb-2 w-full"
-              required
-            />
-            <input
-              type="text"
-              value={rewardid} 
-              onChange={(e) => setRewardid(e.target.value)} 
-              placeholder="Reward ID"
-              className="border border-gray-300 rounded p-2 mb-4 w-full"
-              required
-            />
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              className="border border-gray-300 rounded p-2 mb-4 w-full"
-              required
-            />
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description"
-              className="border border-gray-300 rounded p-2 mb-4 w-full"
-              required
-            />
-            {/* collect waste model */}
-            <div className='flex flex-col justify-center lg:mt-[50px] mt-[50px] lg:mb-[50px] mb-[50px]'>
-            <button onClick={() => setDropdownVisible(!dropdownVisible)} className="flex place-self-center bg-green-600 hover:bg-green-700 text-white text-lg py-3 px-8 rounded-full font-medium transition-all duration-300 ease-in-out transform hover:scale-105">
-              {dropdownVisible ? "Close Options" : "Open Options"}
-            </button>
+        <div className="flex justify-center w-full flex-col items-center mt-[100px]">
+      <h1 className="text-3xl text-black">Submitted Reports</h1>
 
-            {dropdownVisible && (
-              <div className='flex lg:mt-[10px] mt-[20px] justify-center gap-[50px]'>
-                <button onClick={toggleCamera} className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-[30px] group bg-gradient-to-br from-green-400 to-green-800 hover:text-white dark:text-white">
-                  <span className="relative px-5 py-2.5 bg-white rounded-[30px] text-green-700 group-hover:bg-opacity-0 group-hover:text-white">
-                    {cameraEnabled ? "Disable Camera" : "Enable Camera"}
-                  </span>
-                </button>
-
-                <label className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-[30px] group bg-gradient-to-br from-green-400 to-green-800 hover:text-white dark:text-white">
-                  <span className="relative px-5 py-2.5 bg-white rounded-[30px] text-green-700 group-hover:bg-opacity-0 group-hover:text-white">
-                    Upload Image
-                  </span>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                </label>
-              </div>
-            )}
-
-            {/* Camera view */}
-            {cameraEnabled && (
-              <div className='flex flex-col gap-[20px] lg:mt-[15px] mt-[15px]'>
-                <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{ width: "100%", maxWidth: "400px" }} />
-                <button onClick={captureImage} className="relative self-center inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium rounded-[30px] group bg-gradient-to-br from-green-400 to-green-800 hover:text-white dark:text-white">
-                  <span className="relative px-5 py-2.5 bg-white rounded-[30px] text-green-700 group-hover:bg-opacity-0 group-hover:text-white">
-                    Capture Image
-                  </span>
-                </button>
-              </div>
-            )}
-
-            {/* Image preview and prediction */}
-            {imageSrc && (
-              <div className='self-center lg:mt-[20px] mt-[20px]'>
-                <h3 className='text-[24px]'>Preview:</h3>
-                <div style={{background: 'linear-gradient(to bottom right, #38bdf8, #22c55e)',display:"block"}} className='rounded-[20px]'>
-                
-                <img src={imageSrc} alt="Preview" style={{background: 'linear-gradient(to bottom right, #38bdf8, #22c55e)', width: "100%", maxWidth: "400px" }} className='border-[2px] border-[#22c55e] rounded-[20px] group border-gradient-to-br from-green-400 to-green-800 '/>
-                </div>
-                <div className='flex lg:gap-[30px] gap-[20px]'>
-                <button onClick={() => setImageSrc(null)} style={{ padding: "10px 20px", marginTop: "10px", background: "red", color: "white" }} className='rounded-[25px]'>
-                  Delete Image
-                </button>
-                <button onClick={handleSubmit} style={{ padding: "10px 20px", marginTop: "10px", background: "green", color: "white" }} className='rounded-[25px]'>
-                  Get Prediction
-                </button>
-                </div>
-                {prediction && (
-                  <div>
-                    <h3>Prediction Result:</h3>
-                    <p>Class: {prediction.prediction}</p>
-                    <p>Category: {prediction.category}</p>
-                    <p>Confidence: {(prediction.confidence * 100).toFixed(2)}%</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-       
-          <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
-              Submit Reward
-            </Button>
-          </form>
-          <div className="relative inline-block">
-      <button
-        onClick={toggleVisibility}
-        className="text-green-700 text-2xl focus:outline-none"
-        aria-label="Toggle instruction box"
-      >
-        <FaInfoCircle />
-      </button>
-
-      {isVisible && (
-        <div
-          className="absolute top-8 left-0 w-60 p-3 bg-green-50 text-gray-800 border border-green-700 rounded-lg shadow-lg z-10"
-        >
-          <p className="text-sm">
-            This is an instruction box with helpful information for the user. Click the info icon to hide or show this box.
-            <br/><span className='text-[18px] font-semibold'>Reward Points System:</span><br/>
-            Plastic-400<br/>
-            Cardboard-200<br/>
-            Compost-200<br/>
-            Metal-300<br/>
-            Paper-100 <br/>
-            Trash-50
-          </p>
+      {loading ? (
+        <p className="text-gray-500 mt-4">Loading reports...</p>
+      ) : reports.length === 0 ? (
+        <p className="text-gray-500 mt-4">No reports submitted yet.</p>
+      ) : (
+        <div className="w-full max-w-4xl mt-6">
+          {reports.map((report, index) => (
+            <div
+              key={index}
+              className="border rounded-lg p-4 mb-4 shadow-md bg-white"
+            >
+              <h2 className="text-xl font-semibold text-green-600">
+                Report {index + 1}
+              </h2>
+              <p className="text-gray-700">
+                <strong>Waste Type:</strong> {report.wasteType}
+              </p>
+              <p className="text-gray-700">
+                <strong>Amount:</strong> {report.amount}
+              </p>
+              <p className="text-gray-700">
+                <strong>Confidence:</strong> {report.confidence}%
+              </p>
+              {report.position && (
+                <p className="text-gray-700">
+                  <strong>Location:</strong> {report.position.lat.toFixed(4)},{' '}
+                  {report.position.lng.toFixed(4)}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
-      </div>
     </div>
-          {/* Success Message Popup */}
-          {showSuccessMessage && (
-            <motion.div
-              initial={{ opacity: 0, translateY: -20 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -20 }}
-              transition={{ duration: 0.5 }}
-              className="absolute flex gap-2 top-20 bg-green-500 text-white p-4 rounded-lg shadow-lg"
-            >
-              <h1>Reward added successfully!</h1>
-              <FaCheckCircle className="mt-[5.5px] text-white" />
-            </motion.div>
-          )}
-        </div>
       </div>
     </div>
   );

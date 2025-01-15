@@ -21,15 +21,12 @@ export default function CollectPage() {
   const [verificationResult, setVerificationResult] = useState(null)
 
   useEffect(() => {
-    // Simulate fetching tasks from a database
     const fetchTasks = async () => {
       setLoading(true)
       try {
-        // Simulated task data
         const fetchedTasks = [
           { id: 1, location: 'Location A', wasteType: 'Plastic', amount: 10, date: '2024-10-31', status: 'pending' },
           { id: 2, location: 'Location B', wasteType: 'Glass', amount: 5, date: '2024-10-31', status: 'pending' },
-          // Add more simulated tasks as needed
         ]
         setTasks(fetchedTasks)
       } catch (error) {
@@ -44,7 +41,6 @@ export default function CollectPage() {
   }, [])
 
   const handleStatusChange = (taskId, newStatus) => {
-    // Simulate status change
     setTasks(tasks.map(task =>
       task.id === taskId ? { ...task, status: newStatus } : task
     ))
@@ -68,18 +64,18 @@ export default function CollectPage() {
 
   const handleVerify = async () => {
     if (!selectedTask || !verificationImage) {
-      toast.error('Missing required information for verification.')
+      toast.error('Please select a task and upload an image for verification.')
       return
     }
-
+  
     setVerificationStatus('verifying')
-
+  
     try {
       const genAI = new GoogleGenerativeAI(geminiApiKey)
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
-
+      const model = await genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+  
       const base64Data = readFileAsBase64(verificationImage)
-
+  
       const imageParts = [
         {
           inlineData: {
@@ -88,42 +84,33 @@ export default function CollectPage() {
           },
         },
       ]
-
+  
       const prompt = `You are an expert in waste management and recycling. Analyze this image and provide:
         1. Confirm if the waste type matches: ${selectedTask.wasteType}
         2. Estimate if the quantity matches: ${selectedTask.amount}
         3. Your confidence level in this assessment (as a percentage)
-        
-        Respond in JSON format like this:
-        {
-          "wasteTypeMatch": true/false,
-          "quantityMatch": true/false,
-          "confidence": confidence level as a number between 0 and 1
-        }`
-
+        4. The waste type that was reported: ${selectedTask.wasteType}
+        5. The quantity that was reported: ${selectedTask.amount}
+        6. The location that was reported: ${selectedTask.location}`
+  
       const result = await model.generateContent([prompt, ...imageParts])
       const response = await result.response
       const text = await response.text()
-
+  
       try {
         const parsedResult = JSON.parse(text)
         setVerificationResult(parsedResult)
         setVerificationStatus('success')
-
-        if (parsedResult.wasteTypeMatch && parsedResult.quantityMatch && parsedResult.confidence > 0.7) {
+  
+        if (parsedResult.wasteTypeMatch && parsedResult.quantityMatch && parsedResult.confidence > 70) {
           handleStatusChange(selectedTask.id, 'verified')
-          toast.success('Verification successful!', {
-            duration: 5000,
-            position: 'top-center',
-          })
+          toast.success('Verification successful!', { duration: 5000, position: 'top-center' })
         } else {
-          toast.error('Verification failed. The collected waste does not match the reported waste.', {
-            duration: 5000,
-            position: 'top-center',
-          })
+          toast.error('Verification failed. The collected waste does not match the reported waste.', { duration: 5000, position: 'top-center' })
         }
       } catch (error) {
         console.error('Failed to parse JSON response:', text)
+        setVerificationResult(text) // Display plain text result if JSON parsing fails
         setVerificationStatus('failure')
       }
     } catch (error) {
@@ -131,21 +118,18 @@ export default function CollectPage() {
       setVerificationStatus('failure')
     }
   }
+  
 
   const filteredTasks = tasks.filter(task =>
     task.location.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const pageCount = Math.ceil(filteredTasks.length / 5)
-  const paginatedTasks = filteredTasks.slice(
-    (currentPage - 1) * 5,
-    currentPage * 5
-  )
+  const paginatedTasks = filteredTasks.slice((currentPage - 1) * 5, currentPage * 5)
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6 text-gray-800">Waste Collection Tasks</h1>
-      
       <div className="mb-4 flex items-center">
         <Input
           type="text"
@@ -221,25 +205,24 @@ export default function CollectPage() {
                 <img src={verificationImage} alt="Verification" className="mb-4 h-48 object-cover" />
               )}
               <Button onClick={handleVerify} disabled={verificationStatus === 'verifying'}>
-                {verificationStatus === 'verifying' ? 'Verifying...' : 'Verify Waste'}
+                {verificationStatus === 'verifying' ? 'Verifying...' : 'Verify'}
               </Button>
-              {verificationStatus === 'success' && (
-                <div className="mt-2 text-green-600">Verification successful! Results: {JSON.stringify(verificationResult)}</div>
-              )}
               {verificationStatus === 'failure' && (
-                <div className="mt-2 text-red-600">Verification failed. Please try again.</div>
+                <p className="text-red-500 mt-4">Verification failed. Please try again.</p>
               )}
+            {verificationResult && (
+  <div className="mt-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+    <h3 className="text-lg font-semibold mb-2">Verification Result:</h3>
+    {typeof verificationResult === 'object' ? (
+      <pre className="text-sm text-gray-800">{JSON.stringify(verificationResult, null, 2)}</pre>
+    ) : (
+      <p className="text-sm text-gray-800">{verificationResult}</p>
+    )}
+  </div>
+)}
+
             </div>
           )}
-
-          <div className="flex justify-between mt-4">
-            <Button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
-              Previous
-            </Button>
-            <Button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, pageCount))} disabled={currentPage === pageCount}>
-              Next
-            </Button>
-          </div>
         </>
       )}
     </div>

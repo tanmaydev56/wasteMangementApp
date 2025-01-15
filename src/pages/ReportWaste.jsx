@@ -10,17 +10,32 @@ import { getReportCount, addReport } from '../../appwrite';
 import { PieChart, Pie, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import 'leaflet/dist/leaflet.css';
 import { motion } from 'framer-motion';
-
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Button } from '../components/ui/button';
+const geminiApiKey = import.meta.env.VITE_PUBLIC_GEMINI_API_KEY
 const ReportWaste = () => {
   const [reportAmount, setReportAmount] = useState('');
   const [userid, setUserid] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [WasteType, setWasteType] = useState('');
+  // const [amount, setamount] = useState('');
   const [reportCount, setReportCount] = useState(0);
   const [data, setData] = useState([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [newReport,setnewReport] = useState(
+    {
+      wasteType:"",
+      amount:"",
+      confidence:"",
+      status:""
+    }
+  )
+const [verificationStatus, setVerificationStatus] = useState('');
+const [verificationResult, setVerificationResult] = useState({});
+const [file, setFile] = useState(null);
+const [imagePreview, setImagePreview] = useState(null);
+
 
   const [showFailureModal, setShowFailureModal] = useState(false); // Failure modal state
   const [position, setPosition] = useState(null);
@@ -39,39 +54,121 @@ const ReportWaste = () => {
     fetchReportData();
   }, []);
 
-  const handleReportSubmit = async (e) => {
-    e.preventDefault();
-    const reportAmountInt = parseInt(reportAmount, 10);
-
-    if (!isNaN(reportAmountInt) && userid && title && description) {
-      if (position) {
-        try {
-          const reportData = { title, description, reportAmount: reportAmountInt, userid, position };
-          await addReport(reportData);
-
-          setReportAmount('');
-          setUserid('');
-          setTitle('');
-          setDescription('');
-          setPosition(null);
-
-          const count = await getReportCount();
-          setReportCount(count);
-          setData([{ name: 'Reports', value: count }]);
-
-          setShowSuccessModal(true);
-          setTimeout(() => setShowSuccessModal(false), 3000);
-        } catch (error) {
-          console.error("Error submitting report:", error);
+  
+  const readFileAsBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
+  };
+  
+  const handleVerify = async () => {
+    if (!file) {
+      alert("Please upload an image of the waste.");
+      return;
+    }
+  
+    setVerificationStatus('verifying');
+    
+    try {
+      const genAI = new GoogleGenerativeAI(geminiApiKey); // Replace with your API key
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  
+      const base64Data = await readFileAsBase64(file);
+  
+      const imageParts = [
+        {
+          inlineData: {
+            data: base64Data.split(',')[1],
+            mimeType: file.type,
+          },
+        },
+      ];
+  
+      const prompt = `You are an expert in waste management and recycling. Analyze this image and provide:
+        1. The type of waste (e.g., plastic, paper, glass, metal, organic)
+        2. An estimate of the quantity or amount (in kg or liters)
+        3. Your confidence level in this assessment (as a percentage)
+        
+        Respond in JSON format like this:
+        {
+          "wasteType": "type of waste",
+          "quantity": "estimated quantity with unit",
+          "confidence": confidence level as a number between 0 and 1
+        }`;
+  
+      const result = await model.generateContent([prompt, ...imageParts]);
+      const response = await result.response;
+      const text = response.text();
+  
+      try {
+        const parsedResult = JSON.parse(text.replace(/```json|```/g, '')); // Handle markdown formatting
+        
+        if (parsedResult.wasteType && parsedResult.quantity && parsedResult.confidence) {
+          setVerificationResult(parsedResult);
+          setnewReport({
+            wasteType: parsedResult.wasteType,
+            amount: parsedResult.quantity,
+            confidence: Math.round(parsedResult.confidence * 100).toFixed(1), // Convert to percentage
+          });
+          setVerificationStatus('success');
         }
-      } else {
-        setShowFailureModal(true); // Show failure modal if no location
-        setTimeout(() => setShowFailureModal(false), 3000); // Hide after 5 seconds
+        
+      } catch (error) {
+        console.error('Failed to parse JSON:', error);
+        setVerificationStatus('failure');
       }
-    } else {
-      console.error("All fields must be filled out and report amount must be a valid integer.");
+    } catch (error) {
+      console.error('Error verifying waste:', error);
+      setVerificationStatus('failure');
     }
   };
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setImagePreview(URL.createObjectURL(selectedFile));
+    }
+  };
+  
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (position) {
+      try {
+        const reportData = {
+          ...newReport,
+          position,
+          userid,
+        };
+        await addReport(reportData);
+  
+        setnewReport({ wasteType: "", amount: "", confidence: "" ,status:"submitted"});
+        setPosition(null);
+  
+        const count = await getReportCount();
+        setReportCount(count);
+        setData([{ name: 'Reports', value: count }]);
+  
+        setShowSuccessModal(true);
+        setTimeout(() => setShowSuccessModal(false), 3000);
+      } catch (error) {
+        console.error("Error submitting report:", error);
+      }
+    } else {
+      setShowFailureModal(true);
+      setTimeout(() => setShowFailureModal(false), 3000);
+    }
+  };
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const LocationMarker = () => {
     useMapEvents({
@@ -97,6 +194,7 @@ const ReportWaste = () => {
   };
 
   return (
+    
     <div className="h-screen w-full">
       <SideBar isVisible={!showSidebar} />
       <div className={`flex-grow flex flex-col ${showSidebar ? 'ml-0' : 'ml-0'} transition-all duration-300`}>
@@ -139,8 +237,8 @@ const ReportWaste = () => {
           </div>
         </div>
 
-        <div className="p-8 bg-white rounded-2xl shadow-lg max-w-3xl mx-auto mt-24">
-          <h2 className="text-3xl font-semibold mb-6 text-gray-800">Submit Data (Testing)</h2>
+        <div className="p-8 bg-white rounded-2xl shadow-lg lg:w-[800px] w-auto mx-auto mt-24">
+          <h2 className="text-3xl font-semibold mb-6 text-gray-800">Add Report </h2>
           <p className="text-gray-500 mb-4 text-lg">Total Reports Submitted: <span className="font-bold">{reportCount}</span></p>
 
           <div className="flex justify-center mb-6">
@@ -167,57 +265,148 @@ const ReportWaste = () => {
               </PieChart>
             </ResponsiveContainer>
           </div>
+          <div className='mt-32 mr-10'>
+   <form onSubmit={handleReportSubmit} className="space-y-4">
+  {/* Other form fields */}
+  <div>
+    <label className="block text-gray-700 text-[14px] font-medium">Upload Waste Image:</label>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handleFileChange}
+      className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+    />
+  </div>
 
-          <form onSubmit={handleReportSubmit} className="space-y-4">
-            <h3 className="text-xl font-medium mb-2 text-gray-700">Add Report</h3>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Description"
-              className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
-            <input
-              type="number"
-              value={reportAmount}
-              onChange={(e) => setReportAmount(e.target.value)}
-              placeholder="Amount of waste collected (kg)"
-              className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
-            <input
-              type="text"
-              value={userid}
-              onChange={(e) => setUserid(e.target.value)}
-              placeholder="User ID"
-              className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
+  {imagePreview && (
+    <div className="mt-4">
+      <p className="text-gray-600">Uploaded Image:</p>
+      <img
+        src={imagePreview}
+        alt="Uploaded Waste"
+        className="w-full max-w-sm rounded-lg shadow-md"
+      />
+    </div>
+  )}
 
-            {/* Heading for Map */}
-            <h3 className="text-lg font-medium text-gray-700">Select Location on the Map</h3>
-            <div className="w-full h-64 rounded-lg border">
-              <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: "100%", width: "100%" }}>
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                {memoizedLocationMarker}
-              </MapContainer>
-            </div>
+  <Button
+    type="button"
+    onClick={handleVerify}
+   className="w-full bg-green-600  hover:bg-green-700 text-white text-lg py-6 px-10  font-medium transition-all duration-300 ease-in-out transform hover:scale-105"
+    
 
-            <button type="submit" className="w-full bg-green-500 text-white py-3 rounded-lg mt-6 hover:bg-green-600">Submit</button>
-          </form>
+   
+  >
+    Verify Waste
+  </Button>
+</form>
+
+
+
+{verificationStatus === 'verifying' && <p>Verifying waste...</p>}
+{verificationStatus === 'success' && (
+  <div className="p-4 bg-green-100 text-green-800 rounded-lg mt-2">
+    <h4>Verification Successful!</h4>
+    <p>Waste Type: {verificationResult.wasteType}</p>
+    <p>Estimated Quantity: {verificationResult.quantity}</p>
+    <p>Confidence: {(verificationResult.confidence * 100).toFixed(2)}%</p>
+  </div>
+)}
+{verificationStatus === 'failure' && (
+  <div className="p-4 bg-red-100 text-red-800 rounded-lg">
+    <p>Verification failed. Please try again.</p>
+  </div>
+)}
+</div>
+
+<form onSubmit={handleReportSubmit} className="space-y-4 mt-6">
+  {/* <h3 className="text-xl font-medium mb-2 text-gray-700">Add Report</h3> */}
+
+  {/* Waste Type */}
+  <label className='
+  block
+  text-sm
+  font-medium
+  text-gray-700
+  mb-[-2]
+  
+  
+  '>
+    Waste Type:
+  </label>
+  <input
+    type="text"
+    value={newReport?.wasteType || ""}
+    placeholder="Waste Type"
+    className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+    required
+    disabled
+  />
+
+  {/* Waste Amount */}
+  <label className='
+  block
+  text-sm
+  font-medium
+  text-gray-700
+  mb-2
+  
+  
+  '>
+    Waste Amount:
+  </label>
+  <input
+    type="text"
+    value={newReport?.amount || ""}
+    placeholder="Amount of Waste"
+    className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+    required
+    disabled
+  />
+
+  {/* Confidence Level */}
+  <label className='
+  block
+  text-sm
+  font-medium
+  text-gray-700
+  mb-2
+
+  
+  '>
+    Confidence Level:
+  </label>
+  <input
+    type="number"
+    value={newReport?.confidence ? (newReport.confidence*1).toFixed(1) : ""}
+    placeholder="Confidence Level (%)"
+    className="w-full border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-green-400"
+    required
+    disabled
+  />
+
+  {/* Heading for Map */}
+  <h3 className="text-lg font-medium text-gray-700">Select Location on the Map</h3>
+  <div className="w-full h-64 rounded-lg border">
+    <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: "100%", width: "100%" }}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      {memoizedLocationMarker}
+    </MapContainer>
+  </div>
+
+  <button
+    type="submit"
+    className="w-full bg-green-500 text-white py-3 rounded-lg mt-6 hover:bg-green-600"
+  >
+    Submit
+  </button>
+</form>
+
         </div>
+      
 
         {/* Success Modal */}
         {showSuccessModal && (
@@ -250,7 +439,12 @@ const ReportWaste = () => {
         )}
       </div>
     </div>
+    
+
   );
+
+
+
 };
 
 export default ReportWaste;

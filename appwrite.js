@@ -36,6 +36,19 @@ export async function fetchUserDocumentByEmail(email) {
   }
 }
 
+export async function getSubmitedReports() {
+  try {
+    const response = await databases.listDocuments(databaseId, reportsCollectionId, [
+      Query.equal('status', 'submitted'), // Correct spelling
+    ]);
+    return response.documents; // Return the array of documents
+  } catch (error) {
+    console.error('Error fetching submitted reports:', error);
+    throw error;
+  }
+}
+
+
 // Function to handle user registration and store info in the database
 export async function registerUser(name, email, password, phoneNumber, bio) {
   try {
@@ -209,7 +222,7 @@ export async function getWasteCollectionTasks(limit = 100) {
 }
 
 export async function addReport(reportData) {
-  const { amount, userid, title, description } = reportData;
+  const { amount, userid, WasteType, confidence,status } = reportData;
   
   try {
     const document = await databases.createDocument(
@@ -219,8 +232,9 @@ export async function addReport(reportData) {
       { 
         amount,
         userid,
-        title,
-        description,
+        WasteType,
+        confidence,
+        status:"submitted",
         createdat: new Date().toISOString(),
       }
     );
