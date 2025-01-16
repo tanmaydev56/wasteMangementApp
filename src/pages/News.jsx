@@ -15,17 +15,22 @@ const News = () => {
     
 
     const fetchArticles = (query) => {
-        fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
+        const encodedQuery = encodeURIComponent(query); // Properly encode the query
+        const apiUrl = `https://newsapi.org/v2/everything?q=${encodedQuery}&apiKey=${apiKey}`;
+    
+        fetch(apiUrl)
             .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 return response.json();
             })
             .then(data => {
-                if (data.articles) {
-                    setArticles(data.articles);
+                if (data.articles && data.articles.length > 0) {
+                    setArticles(data.articles); // Set fetched articles
                 } else {
                     console.error('No articles found');
-                    setArticles([]); // Clear articles on error
+                    setArticles([]); // Clear articles on no data
                 }
             })
             .catch(error => {
