@@ -69,7 +69,7 @@ const SideBar = ({ isVisible }) => {
         </NavLink>
        
       </div>
-      <NavLink
+      {/* <NavLink
         to="/settings"
         className={({ isActive }) =>
           `lg:mt-[350px] mt-[280px] flex items-center p-2 rounded-md cursor-pointer ${
@@ -79,7 +79,7 @@ const SideBar = ({ isVisible }) => {
       >
         <FaCog className="mr-2" />
         <span>Settings</span>
-      </NavLink>
+      </NavLink> */}
     </div>
   );
 };

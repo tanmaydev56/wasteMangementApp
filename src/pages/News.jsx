@@ -15,8 +15,8 @@ const News = () => {
     
 
     const fetchArticles = (query) => {
-      fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
-          .then(response => {
+        fetch(`https://newsapi.org/v2/everything?q=${query}&apiKey=${apiKey}`)
+            .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
             })
@@ -25,10 +25,15 @@ const News = () => {
                     setArticles(data.articles);
                 } else {
                     console.error('No articles found');
+                    setArticles([]); // Clear articles on error
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch news articles. Please try again later.');
+            });
     };
+    
     useEffect(() => {
         fetchArticles("waste disposal OR recycling OR waste management");
     }, [
