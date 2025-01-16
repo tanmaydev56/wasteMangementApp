@@ -11,7 +11,7 @@ import CollectPage from './pages/Temp';
 
 const router = createBrowserRouter([
   {
-    path: "/dashboard",
+    path: "/",
     element: <Dashboard />,
   },
 
