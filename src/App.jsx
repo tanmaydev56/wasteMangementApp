@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
+// import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import CollectWaste from './components/CollectWaste';
 import ReportWaste from './pages/ReportWaste';
@@ -11,13 +11,10 @@ import CollectPage from './pages/Temp';
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <LoginPage />,
+    path: "/dashboard",
+    element: <Dashboard />,
   },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
+
   {
     path: "/dashboard",
     element: <Dashboard />,
