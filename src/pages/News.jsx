@@ -12,30 +12,42 @@ const News = () => {
     const navigate = useNavigate();
     const apiKey = import.meta.env.VITE_APP_NEWS_API_KEY;
 
+    
+
+    const fetchArticles = (query) => {
+        const encodedQuery = encodeURIComponent(query); // Properly encode the query
+        const apiUrl = `https://newsapi.org/v2/everything?q=${encodedQuery}&apiKey=${apiKey}`;
+    
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.articles && data.articles.length > 0) {
+                    setArticles(data.articles); // Set fetched articles
+                } else {
+                    console.error('No articles found');
+                    setArticles([]); // Clear articles on no data
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch news articles. Please try again later.');
+            });
+    };
+    
     useEffect(() => {
         fetchArticles("waste disposal OR recycling OR waste management");
-    }, [apiKey]);
-
-    const fetchArticles = async (query) => {
-        try {
-            const encodedQuery = encodeURIComponent(query);
-            const response = await fetch(`https://newsapi.org/v2/everything?q=${encodedQuery}&apiKey=${apiKey}`);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            setArticles(data.articles || []);
-        } catch (error) {
-            console.error('Error fetching articles:', error);
-            alert('Failed to fetch news articles. Please try again later.');
-        }
-    };
-
+    }, [
+        
+        apiKey
+        ]);
+    
     const toggleDropdown = () => setIsOpen(!isOpen);
     const toggleSidebar = () => setShowSidebar(!showSidebar);
-
     const handleLogout = () => {
         localStorage.removeItem('userToken');
         navigate('/login');
@@ -43,7 +55,7 @@ const News = () => {
 
     const handleSearch = (e) => {
         if (e.key === 'Enter' || e.type === 'click') {
-            const query = searchQuery.trim() || "waste disposal OR recycling OR waste management";
+            const query = searchQuery.trim() === '' ? "waste OR recycling OR waste management" : searchQuery;
             fetchArticles(query);
         }
     };
@@ -51,10 +63,10 @@ const News = () => {
     return (
         <div className="h-screen w-full flex">
             <SideBar isVisible={!showSidebar} />
-            <div className="flex-grow flex flex-col">
-                <header className="flex items-center justify-between h-20 px-4 bg-white border-b border-gray-200 fixed w-full z-50">
+            <div className={`flex-grow flex flex-col transition-all duration-300`}>
+                <div className="flex items-center justify-between h-20 px-4 bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
                     <div className="flex items-center space-x-4">
-                        <button onClick={toggleSidebar} className="text-xl">
+                        <button className="text-xl" onClick={toggleSidebar}>
                             <MdOutlineMenu />
                         </button>
                         <div className="flex items-center text-lg font-semibold">
@@ -71,58 +83,59 @@ const News = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={handleSearch}
                         />
-                        <FaSearch className="text-gray-400 cursor-pointer" onClick={handleSearch} />
+                        <FaSearch className="text-gray-400" onClick={handleSearch} />
                     </div>
                     <div className="flex items-center space-x-4">
                         <FaBell className="text-gray-500" />
+                        
                         <div className="relative inline-block">
                             <button onClick={toggleDropdown} className="text-gray-500 text-2xl">
                                 <FaUser />
                             </button>
                             {isOpen && (
-                                <ul className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg">
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
-                                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
-                                    <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
-                                </ul>
+                                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
+                                    <ul>
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Profile</li>
+                                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
+                                        <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
+                                    </ul>
+                                </div>
                             )}
                         </div>
                     </div>
-                </header>
+                </div>
 
-                <main className="flex flex-col items-center mt-24 px-4">
-                    <h1 className="text-3xl font-bold">Latest News</h1>
-                    <div className="mt-8 w-full max-w-4xl space-y-6">
-                        {articles.length > 0 ? (
-                            articles.map((article) => (
-                                <article key={article.url} className="bg-white p-4 rounded shadow-md">
-                                    {article.urlToImage && (
-                                        <img
-                                            src={article.urlToImage}
-                                            alt={article.title}
-                                            className="w-full h-64 object-cover rounded mb-4"
-                                        />
-                                    )}
-                                    <h2 className="text-xl font-bold">{article.title}</h2>
-                                    <p className="text-gray-700 mt-2">{article.description}</p>
-                                    <a
-                                        href={article.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 mt-2 inline-block"
-                                    >
-                                        Read more
-                                    </a>
-                                </article>
-                            ))
-                        ) : (
-                            <p className="text-gray-500">No articles available. Try a different search query.</p>
-                        )}
+                <div className='flex justify-center w-full items-center mt-[100px]'>
+                    <h1 className='text-3xl text-black'>NEWS</h1>
+                </div>
+                <div className='flex flex-col self-center'>
+                    <div className="w-full max-w-4xl space-y-6">
+                        {articles.map((article) => (
+                            <div key={article.url} className="bg-white p-4 rounded shadow-md">
+                                {article.urlToImage && (
+                                    <img
+                                        src={article.urlToImage}
+                                        alt={article.title}
+                                        className="w-full h-64 object-cover rounded mb-4"
+                                    />
+                                )}
+                                <h2 className="text-xl font-bold">{article.title}</h2>
+                                <p className="text-gray-700 mt-2">{article.description}</p>
+                                <a
+                                    href={article.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 mt-2 inline-block"
+                                >
+                                    Read more
+                                </a>
+                            </div>
+                        ))}
                     </div>
-                </main>
+                </div>
             </div>
         </div>
     );
-};
+}
 
 export default News;
