@@ -1,11 +1,11 @@
-🌱 GreenFuture - Sustainable Waste Management Platform
+### 🌱 GreenFuture - Sustainable Waste Management Platform
 
-A community-driven platform promoting efficient waste management and eco-friendly practices.
+## A community-driven platform promoting efficient waste management and eco-friendly practices.
 
-🏆 Achievement
+## 🏆 Achievement
 GreenFuture was proudly selected as a Finalist in the prestigious YuvaManthan Hackathon organized by IIT Madras. This recognition underscores our commitment to innovative solutions for a sustainable future.
 
-🚀 Features
+## 🚀 Features
 📊 Impact Statistics: View real-time data on waste reduction and recycling.
 🗑️ Waste Reporting: Report waste for collection and receive rewards.
 🎁 Reward System: Earn coins for eco-friendly actions and redeem them for discounts on partner products.
@@ -15,13 +15,13 @@ GreenFuture was proudly selected as a Finalist in the prestigious YuvaManthan Ha
 💡 Why GreenFuture?
 GreenFuture is designed to inspire community participation in creating a cleaner planet. It bridges the gap between waste producers and recycling facilities while encouraging eco-friendly behavior through gamification.
 
-🖼️ Screenshots
+## 🖼️ Screenshots
 ![image](https://github.com/user-attachments/assets/87d5d369-6568-4da5-9a20-15a5ed71e910)
 
 
 Report Waste
 
-🛠️ Tech Stack
+## 🛠️ Tech Stack
 Frontend: React.js, Tailwind CSS
 Backend: Node.js, Express.js
 Database: Appwrite, Neon Database
