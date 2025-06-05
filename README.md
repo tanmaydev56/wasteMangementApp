@@ -1,6 +1,6 @@
-### 🌱 GreenFuture - Sustainable Waste Management Platform
+## 🌱 GreenFuture - Sustainable Waste Management Platform
 
-## A community-driven platform promoting efficient waste management and eco-friendly practices.
+### A community-driven platform promoting efficient waste management and eco-friendly practices.
 
 ## 🏆 Achievement
 GreenFuture was proudly selected as a Finalist in the prestigious YuvaManthan Hackathon organized by IIT Madras. This recognition underscores our commitment to innovative solutions for a sustainable future.
